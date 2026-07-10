@@ -43,7 +43,7 @@ class MainWindow(QMainWindow):
         self.hugo = HugoService(self)
 
         self.resize(1200, 700)
-        self.setWindowTitle("Hugo Studio v0.3")
+        self.setWindowTitle("Hugo Studio v0.4 Alpha")
 
         self.build_ui()
 
