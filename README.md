@@ -1,0 +1,1 @@
+v0.3 fixes preview, adds log panel, markdown highlighting and help.
