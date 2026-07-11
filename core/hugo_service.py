@@ -4,6 +4,9 @@ import webbrowser
 from PySide6.QtCore import QProcess, QTimer
 
 from core.themes import THEMES
+from pathlib import Path
+
+
 
 DEBUG_HUGO_OUTPUT = False
 
@@ -27,6 +30,8 @@ class HugoService:
         self.process.readyReadStandardError.connect(
         self.process_output
         )
+        
+        self.process.finished.connect(self.server_stopped)
 
     def preview(self, project):
 
@@ -37,8 +42,7 @@ class HugoService:
             self.process.state() != QProcess.NotRunning
             and self.server_project != project
         ):
-            self.process.kill()
-            self.process.waitForFinished()
+            self.stop_server()
 
         if self.process.state() == QProcess.NotRunning:
 
@@ -82,7 +86,6 @@ class HugoService:
         self.parent.write("Build complete.")
         
     def new_project(self, parent_folder, name):
-
         result = subprocess.run(
             ["hugo", "new", "site", name],
             cwd=parent_folder,
@@ -90,13 +93,26 @@ class HugoService:
             text=True,
         )
 
-        if result.returncode == 0:
+        if result.returncode != 0:
+            self.parent.write(result.stderr)
+            return False
+            
+        project_path = Path(parent_folder) / name
+      
+        
+        git = subprocess.run(
+            ["git", "init"],
+            cwd=project_path,
+            capture_output=True,
+            text=True,
+        )
 
-            self.parent.write(f"Created project: {name}")
-            return True
+        if git.returncode != 0:
+            self.parent.write(git.stderr)
+            return False
 
-        self.parent.write(result.stderr)
-        return False
+        self.parent.write(f"Created project: {name}")
+        return True
         
     def install_theme(self, project, theme):
 
@@ -153,12 +169,31 @@ class HugoService:
         
         if "Web Server is available at" in text:
 
-            self.parent.write("Hugo server is ready.")
-            
-            self.server_project = self.pending_project
-            self.pending_project = None
-            self.server_running = True
+            if not self.server_running:
 
-       
+                self.server_project = self.pending_project
+                self.pending_project = None
+                self.server_running = True
 
-            webbrowser.open(self.server_url)
+                self.parent.write("Hugo server is ready.")
+                webbrowser.open(self.server_url)
+                
+    def server_stopped(self):
+
+        self.server_running = False
+        self.server_project = None
+        self.pending_project = None
+
+        self.parent.write("Hugo server stopped.")
+        
+    def stop_server(self):
+
+        if self.process.state() == QProcess.NotRunning:
+            return
+
+        self.process.kill()
+        self.process.waitForFinished()
+
+        self.server_running = False
+        self.server_project = None
+        self.pending_project = None

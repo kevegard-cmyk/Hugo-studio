@@ -252,7 +252,7 @@ class MainWindow(QMainWindow):
         self.load_file(path)
 
     def save(self):
-
+        
         if not self.current:
             return
 
@@ -276,6 +276,8 @@ class MainWindow(QMainWindow):
    
 
     def preview(self):
+        
+        
         self.hugo.preview(self.project)
 
     def build(self):
@@ -458,6 +460,11 @@ class MainWindow(QMainWindow):
             shutil.rmtree(path)
         else:
             path.unlink()
+            
+        # Is the currently opened file gone?
+        if self.current and not self.current.exists():
+            self.reset_editor()
+
 
         self.refresh_tree()
 
@@ -561,7 +568,8 @@ class MainWindow(QMainWindow):
         self.update_editor_font()
         
     def closeEvent(self, event):
-
+        
+        self.hugo.stop_server()
         if self.maybe_save():
             event.accept()
         else:

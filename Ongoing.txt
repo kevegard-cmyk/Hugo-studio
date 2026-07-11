@@ -2,3 +2,10 @@ Functions:
 refactoring project load
 window title
 remove statusbar info
+
+
+------------------------
+
+Bugs:
+Saves opens preview - fixed
+Saves brings back deleted file - fixed
