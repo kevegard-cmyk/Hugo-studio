@@ -4,7 +4,7 @@
 
 Unlike general-purpose code editors, Hugo Studio is designed for writers, bloggers, and content creators who want to focus on writing rather than Hugo syntax.
 
-The project is currently in development.
+The project is currently in development, only for testing.
 
 ---
 
@@ -33,6 +33,9 @@ The long-term goal is to make common Hugo tasks available through an intuitive g
 * Create folders
 * Rename files and folders
 * Delete files and folders
+
+### Theme
+* Install PaperMod theme (config file still manual)
 
 ### Markdown Editing
 
@@ -84,8 +87,6 @@ A graphical editor for:
 ### Writing Tools
 
 * Word count
-* Reading time
-* Find and Replace
 * Better image insertion
 * Hugo-aware snippets
 
@@ -121,8 +122,8 @@ Hugo Studio is intended for:
 
 Current version:
 
-**v0.4 Alpha**
-
+**v0.4.2 Alpha**
+Fixes
 
 ---
 
