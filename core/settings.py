@@ -53,7 +53,8 @@ class Settings:
         return self.data["recent_projects"]
 
     def add_recent_project(self, folder):
-
+        
+        folder = str(Path(folder).resolve())
         recent = self.data["recent_projects"]
 
         if folder in recent:

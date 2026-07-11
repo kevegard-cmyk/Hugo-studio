@@ -1,0 +1,4 @@
+Functions:
+refactoring project load
+window title
+remove statusbar info

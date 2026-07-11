@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QMenu
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QPushButton
 from PySide6.QtCore import QProcess
+from PySide6.QtWidgets import QLabel
 from pathlib import Path
 from textwrap import dedent
 import datetime
@@ -22,12 +23,14 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QInputDialog,
     QMessageBox,
+    QTabWidget,
 )
 
 from utils.markdown_highlighter import MarkdownHighlighter
 from ui.markdown_help import show_markdown_help
 from core.hugo_service import HugoService
 from core.settings import Settings
+from core.themes import THEMES
 
 
 class MainWindow(QMainWindow):
@@ -43,7 +46,7 @@ class MainWindow(QMainWindow):
         self.hugo = HugoService(self)
 
         self.resize(1200, 700)
-        self.setWindowTitle("Hugo Studio v0.4 Alpha")
+        self.setWindowTitle("Hugo Studio v0.4.2 Alpha")
 
         self.build_ui()
 
@@ -58,8 +61,18 @@ class MainWindow(QMainWindow):
         menu = self.menuBar()
 
         file_menu = menu.addMenu("&File")
-        hugo_menu = menu.addMenu("&Hugo")
         view_menu = menu.addMenu("&View")
+        hugo_menu = menu.addMenu("&Hugo")
+        theme_menu = menu.addMenu("&Theme")
+        
+        
+        # ---------- Theme Menu ----------
+        
+        install_theme_action = QAction("Install Theme...", self)
+        install_theme_action.triggered.connect(self.install_theme)
+        theme_menu.addAction(install_theme_action)
+        
+          # ---------- View Menu ----------
         
         font_up = QAction("Increase Font Size", self)
         font_up.setShortcut("Ctrl++")
@@ -74,9 +87,11 @@ class MainWindow(QMainWindow):
         font_reset.triggered.connect(self.reset_font_size)
         view_menu.addAction(font_reset)
 
+        # ---------- File Menu ----------
         
-
-        
+        new_project = QAction("New Project...", self)
+        new_project.triggered.connect(self.new_project)
+        file_menu.addAction(new_project)
 
         open_action = QAction("Open Project...", self)
         open_action.triggered.connect(self.open_project)
@@ -95,6 +110,10 @@ class MainWindow(QMainWindow):
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
         
+        
+        
+        # ---------- Hugo Menu ----------
+        
         preview_action = QAction("Preview", self)
         preview_action.setShortcut("F5")
         preview_action.triggered.connect(self.preview)
@@ -111,6 +130,9 @@ class MainWindow(QMainWindow):
         help_action.setShortcut("F1")
         help_action.triggered.connect(self.md_help)
         hugo_menu.addAction(help_action)
+        
+        
+        # --------------------
 
      
 
@@ -128,6 +150,7 @@ class MainWindow(QMainWindow):
 
         right = QWidget()
         layout = QVBoxLayout(right)
+      
 
         self.editor = QPlainTextEdit()
         self.editor.setReadOnly(True)
@@ -139,9 +162,19 @@ class MainWindow(QMainWindow):
         self.editor.textChanged.connect(self.document_changed)
         self.md = MarkdownActions(self.editor)
         self.authoring = AuthoringToolbar(self.md)
+        
+        self.tabs = QTabWidget()
+        
+        
+        
+        self.tabs.addTab(
+            self.editor,
+            "Welcome",
+        )
 
         layout.addWidget(self.authoring)
-        layout.addWidget(self.editor)
+  
+        layout.addWidget(self.tabs)
 
         self.log = QPlainTextEdit()
         self.log.setReadOnly(True)
@@ -166,6 +199,13 @@ class MainWindow(QMainWindow):
         splitter.addWidget(right)
         splitter.setSizes([300, 900])
         self.update_recent_projects_menu()
+        
+        self.statusBar().showMessage("No project open")
+        
+
+       
+        
+    # --------------------
 
     def write(self, message):
         self.log.appendPlainText(message)
@@ -177,20 +217,16 @@ class MainWindow(QMainWindow):
         if not folder:
             return
 
-        folder = Path(folder)
+        self.reset_editor()
 
-        if not folder.exists():
+        self.load_project(folder)
+        
+    def open_project(self):
+
+        if not self.maybe_save():
             return
 
-        self.project = folder
-
-        index = self.model.setRootPath(str(folder))
-        self.tree.setModel(self.model)
-        self.tree.setRootIndex(index)
-
-        self.write(f"Restored {folder}")
-
-    def open_project(self):
+        self.reset_editor()
 
         folder = QFileDialog.getExistingDirectory(
             self,
@@ -200,19 +236,9 @@ class MainWindow(QMainWindow):
         if not folder:
             return
 
-        self.project = Path(folder)
-
-        index = self.model.setRootPath(folder)
-
-        self.tree.setModel(self.model)
-        self.tree.setRootIndex(index)
-
-        self.settings.last_project = folder
-        self.settings.add_recent_project(folder)
-        self.settings.save()
-        self.update_recent_projects_menu()
-        self.write("Opened " + folder)
-
+        self.load_project(folder)
+        
+        
     def open_file(self, index):
 
         path = Path(self.model.filePath(index))
@@ -220,29 +246,32 @@ class MainWindow(QMainWindow):
         if path.is_dir():
             return
 
-        self.current = path
+        if not self.maybe_save():
+            return
 
-        self.editor.setPlainText(
-            path.read_text(
-                encoding="utf8",
-                errors="ignore",
-            )
-        )
-        self.modified = False
-        self.editor.setReadOnly(False)
-        self.save_action.setEnabled(True)
-        self.write("Opened " + path.name)
+        self.load_file(path)
 
     def save(self):
 
-        if self.current:
+        if not self.current:
+            return
 
-            self.current.write_text(
-                self.editor.toPlainText(),
-                encoding="utf8",
+        self.current.write_text(
+            self.editor.toPlainText(),
+            encoding="utf8",
+        )
+
+        self.modified = False
+        
+        if self.current:
+            self.tabs.setTabText(
+                0,
+                self.current.name,
             )
 
-            self.write("Saved " + self.current.name)
+        self.write("Saved " + self.current.name)
+
+        self.update_status()
 
    
 
@@ -281,32 +310,12 @@ class MainWindow(QMainWindow):
             
     def open_recent_project(self, folder):
 
-        folder = Path(folder)
-
-        if not folder.exists():
-
-            QMessageBox.warning(
-                self,
-                "Missing Project",
-                f"{folder}\n\nProject no longer exists."
-            )
-
+        if not self.maybe_save():
             return
 
-        self.project = folder
+        self.reset_editor()
 
-        index = self.model.setRootPath(str(folder))
-
-        self.tree.setModel(self.model)
-        self.tree.setRootIndex(index)
-
-        self.settings.last_project = str(folder)
-        self.settings.add_recent_project(str(folder))
-        self.settings.save()
-
-        self.update_recent_projects_menu()
-
-        self.write(f"Opened {folder}")
+        self.load_project(folder)
         
     def show_context_menu(self, position):
 
@@ -553,39 +562,226 @@ class MainWindow(QMainWindow):
         
     def closeEvent(self, event):
 
-        if not self.modified:
+        if self.maybe_save():
             event.accept()
-            return
+        else:
+            event.ignore()
             
     def document_changed(self):
 
         if self.editor.isReadOnly():
             return
 
+        if self.modified:
+            return
+
         self.modified = True
+
+        if self.current:
+            self.tabs.setTabText(
+                0,
+                self.current.name + " *",
+            )
+
+        self.update_status()
     
-    def closeEvent(self, event):
+   
+            
+            
+    def new_project(self):
+
+        if not self.maybe_save():
+            return
+
+        name, ok = QInputDialog.getText(
+            self,
+            "New Project",
+            "Project name:",
+        )
+
+        if not ok or not name.strip():
+            return
+
+        name = name.strip()
+
+        workspace = QFileDialog.getExistingDirectory(
+            self,
+            "Select Workspace",
+        )
+
+        if not workspace:
+            return
+
+        project = Path(workspace) / name
+
+        if project.exists():
+
+            QMessageBox.warning(
+                self,
+                "Project Exists",
+                f"{project}\n\nChoose another project name.",
+            )
+            return
+
+        self.reset_editor()
+
+        if self.hugo.new_project(workspace, name):
+           self.load_project(project)
+        else:
+            
+            QMessageBox.critical(
+            self,
+                "Project Creation Failed",
+        "Hugo Studio could not create the project.\n\nCheck the log for details.",
+            )
+     
+        
+        
+    def install_theme(self):
+
+        from core.themes import THEMES
+
+        theme, ok = QInputDialog.getItem(
+            self,
+            "Install Theme",
+            "Choose a theme:",
+            sorted(THEMES.keys()),
+            0,
+            False,
+        )
+
+        if not ok:
+            return
+
+        self.hugo.install_theme(
+            self.project,
+            theme,
+        )
+    def update_status(self):
+
+        if self.project is None:
+            self.statusBar().showMessage("No project open")
+            return
+
+        project = self.project.name
+
+        if self.current is None:
+            self.statusBar().showMessage(
+                f"Project: {project}"
+            )
+        else:
+            self.statusBar().showMessage(
+                f"Project: {project} | File: {self.current.name}"
+            )
+            
+    def maybe_save(self):
 
         if not self.modified:
-            event.accept()
-            return
+            return True
 
         reply = QMessageBox.question(
             self,
             "Unsaved Changes",
-            "Save changes before closing?",
+            f"Save changes to {self.current.name}?",
             QMessageBox.Save |
             QMessageBox.Discard |
             QMessageBox.Cancel,
-        QMessageBox.Save,
+            QMessageBox.Save,
         )
-    
+
         if reply == QMessageBox.Save:
             self.save()
-            event.accept()
+            return True
 
-        elif reply == QMessageBox.Discard:
-            event.accept()
+        if reply == QMessageBox.Discard:
+            return True
 
-        else:
-            event.ignore()
+        return False
+        
+    def reset_editor(self):
+
+        self.current = None
+
+        self.editor.blockSignals(True)
+
+        self.editor.clear()
+
+        self.editor.blockSignals(False)
+
+        self.editor.setReadOnly(True)
+
+        self.modified = False
+
+        self.save_action.setEnabled(False)
+
+        self.tabs.setTabText(
+            0,
+            "Welcome",
+        )
+
+        self.update_status()
+        
+    def load_file(self, path):
+
+        self.current = path
+
+        self.editor.blockSignals(True)
+
+        self.editor.setPlainText(
+            path.read_text(
+                encoding="utf8",
+                errors="ignore",
+            )
+        )
+
+        self.editor.blockSignals(False)
+
+        self.editor.setReadOnly(False)
+    
+        self.modified = False
+
+        self.save_action.setEnabled(True)
+
+        self.tabs.setTabText(
+            0,
+            path.name,
+        )
+
+        self.write("Opened " + path.name)
+
+        self.update_status()
+        
+    
+        
+    def load_project(self, folder):
+
+        folder = Path(folder)
+
+        if not folder.exists():
+
+            QMessageBox.warning(
+                self,
+                "Missing Project",
+                f"{folder}\n\nProject no longer exists."
+            )
+
+            return False
+
+        self.project = folder
+    
+        index = self.model.setRootPath(str(folder))
+
+        self.tree.setModel(self.model)
+        self.tree.setRootIndex(index)
+
+        self.settings.last_project = str(folder)
+        self.settings.add_recent_project(str(folder))
+        self.settings.save()
+
+        self.update_recent_projects_menu()
+
+        self.write(f"Opened {folder}")
+
+        self.update_status()
+
+        return True
