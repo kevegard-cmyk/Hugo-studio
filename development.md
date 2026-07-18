@@ -2,9 +2,10 @@ Hugo Studio – The easiest way to start with Hugo.
 
 Create, edit, preview and publish Hugo websites without learning the command line.
 
-=======
+
 VISION
-=======
+======
+
 
 Hugo Studio is a desktop application that makes Hugo accessible to
 beginners – writers, bloggers and other non-technical users.
@@ -18,9 +19,10 @@ Principles
 - Advanced users can still use the command line.
 
 
-=================
+
 CURRENT MILESTONE
-=================
+======
+
 
 Architecture
 - Split MainWindow
@@ -28,9 +30,10 @@ Architecture
 - Split OS-specific code
 
 
-=====
+
 BUGS
-=====
+======
+
 
 - Rename during open
 - Remove during open
@@ -41,9 +44,10 @@ BUGS
 - PyInstaller doesn't include help file
 
 
-========
+
 FEATURES
-========
+======
+
 
 IDE
 ---
@@ -97,9 +101,10 @@ Configure Site
 - Homepage editor
 
 
-=========================
+
 TOOLS & HELP & MAINTENANCE
-=========================
+======
+
 
 Tools
 -----
@@ -118,9 +123,10 @@ Maintenance
 - Check for updates
 
 
-========
+
 PROJECT
-========
+======
+
 
 Website
 - Create Hugo workflow
@@ -136,9 +142,10 @@ Release
 - Make public
 
 
-=========
+
 FUTURE
-=========
+======
+
 
 Hugo
 - Site menu
@@ -149,9 +156,9 @@ Other
 - Additional improvements as the project evolves
 
 
-=======
 DONE
-=======
+======
+
 
 - Multi-tab editor
 - Ctrl+Z works with toolbar buttons
