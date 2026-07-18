@@ -2,6 +2,11 @@
 
 from PySide6.QtGui import QAction
 
+from ui.mainwindow.project import (
+    new_project,
+    open_project,
+)
+
 
 def build_menus(window):
 
@@ -18,13 +23,17 @@ def build_file_menu(window, menu):
 
     file_menu = menu.addMenu("&File")
 
-    new_project = QAction("New Project...", window)
-    new_project.triggered.connect(window.new_project)
-    file_menu.addAction(new_project)
+    new_project_action = QAction("New Project...", window)
+    new_project_action.triggered.connect(
+        lambda: new_project(window)
+    )
+    file_menu.addAction(new_project_action)
 
-    open_action = QAction("Open Project...", window)
-    open_action.triggered.connect(window.open_project)
-    file_menu.addAction(open_action)
+    open_project_action = QAction("Open Project...", window)
+    open_project_action.triggered.connect(
+        lambda: open_project(window)
+    )
+    file_menu.addAction(open_project_action)
 
     window.recent_menu = file_menu.addMenu("Recent Projects")
 
