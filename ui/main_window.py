@@ -7,6 +7,7 @@ from textwrap import dedent
 from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt, QProcess
 
+
 from PySide6.QtWidgets import (
     QFileDialog,
     QFileSystemModel,
@@ -24,9 +25,10 @@ from PySide6.QtWidgets import (
     QTreeView,
     QVBoxLayout,
     QWidget,
+    QApplication,
 )
 
-
+from core.version import RELEASE
 from core.hugo_service import HugoService
 from core.settings import Settings
 from core.themes import THEMES
@@ -47,7 +49,10 @@ class MainWindow(QMainWindow):
         self.hugo = HugoService(self)
 
         self.resize(1200, 700)
-        self.setWindowTitle("Hugo Studio v0.4.2 Alpha")
+        self.setWindowTitle(
+            f"{QApplication.applicationName()} "
+            f"v{QApplication.applicationVersion()} {RELEASE}"
+        )
 
         self.build_ui()
 

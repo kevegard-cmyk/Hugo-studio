@@ -4,16 +4,15 @@ import sys
 from PySide6.QtWidgets import QApplication
 
 from ui.main_window import MainWindow
-
-
+from core.version import APP_NAME, VERSION, ORGANIZATION
 
 
 def main():
     app = QApplication(sys.argv)
-    
-    app.setApplicationName("Hugo Studio")
-    app.setApplicationVersion("0.4.2")
-    app.setOrganizationName("Hugo Studio")
+
+    app.setApplicationName(APP_NAME)
+    app.setApplicationVersion(VERSION)
+    app.setOrganizationName(ORGANIZATION)
 
     window = MainWindow()
     window.show()
