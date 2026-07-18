@@ -35,6 +35,8 @@ from core.themes import THEMES
 from authoring.markdown_actions import MarkdownActions
 from ui.authoring_toolbar import AuthoringToolbar
 from ui.document_editor import DocumentEditor
+from ui.mainwindow.menus import build_menus
+from ui.mainwindow.tree import show_context_menu
 
 class MainWindow(QMainWindow):
 
@@ -58,98 +60,11 @@ class MainWindow(QMainWindow):
 
         self.restore_last_project()
         
-    def build_menus(self):
-
-        menu = self.menuBar()
-
-        self.build_file_menu(menu)
-        self.build_view_menu(menu)
-        self.build_hugo_menu(menu)
-        self.build_theme_menu(menu)
-        self.build_help_menu(menu)
-        
-
-
-    def build_file_menu(self, menu):
-
-        file_menu = menu.addMenu("&File")
-        new_project = QAction("New Project...", self)
-        new_project.triggered.connect(self.new_project)
-        file_menu.addAction(new_project)
-
-        open_action = QAction("Open Project...", self)
-        open_action.triggered.connect(self.open_project)
-        file_menu.addAction(open_action)
-
-        self.recent_menu = file_menu.addMenu("Recent Projects")
-
-        file_menu.addSeparator()
-
-        self.save_action = file_menu.addAction("Save")
-        self.save_action.setShortcut("Ctrl+S")
-        self.save_action.triggered.connect(self.save)
-        self.save_action.setEnabled(False)
-
-        exit_action = QAction("Exit", self)
-        exit_action.triggered.connect(self.close)
-        file_menu.addAction(exit_action)
-
-    def build_view_menu(self, menu):
-
-        view_menu = menu.addMenu("&View")
-
-        font_up = QAction("Increase Font Size", self)
-        font_up.setShortcut("Ctrl++")
-        font_up.triggered.connect(self.increase_font_size)
-        view_menu.addAction(font_up)
-
-        font_down = QAction("Decrease Font Size", self)
-        font_down.setShortcut("Ctrl+-")
-        font_down.triggered.connect(self.decrease_font_size)
-        view_menu.addAction(font_down)
-
-        font_reset = QAction("Reset Font Size", self)
-        font_reset.setShortcut("Ctrl+0")
-        font_reset.triggered.connect(self.reset_font_size)
-        view_menu.addAction(font_reset)
-        
-    def build_hugo_menu(self, menu):
-
-        hugo_menu = menu.addMenu("&Hugo")
-
-        preview_action = QAction("Preview", self)
-        preview_action.setShortcut("F5")
-        preview_action.triggered.connect(self.preview)
-        hugo_menu.addAction(preview_action)
-
-        build_action = QAction("Build", self)
-        build_action.setShortcut("F6")
-        build_action.triggered.connect(self.build)
-        hugo_menu.addAction(build_action)
-
-        hugo_menu.addSeparator()
-        
-    def build_theme_menu(self, menu):
-
-        theme_menu = menu.addMenu("&Theme")
-
-        install_theme_action = QAction("Install Theme...", self)
-        install_theme_action.triggered.connect(self.install_theme)
-        theme_menu.addAction(install_theme_action)
- 
-    def build_help_menu(self, menu):
-
-        help_menu = menu.addMenu("&Help")
-
-        help_action = QAction("Markdown Help", self)
-        help_action.setShortcut("F1")
-        help_action.triggered.connect(self.md_help)
-        help_menu.addAction(help_action)
+    
 
     def build_ui(self):
-
  
-        self.build_menus()
+        build_menus(self)
 
         splitter = QSplitter()
         self.setCentralWidget(splitter)
@@ -164,8 +79,13 @@ class MainWindow(QMainWindow):
         self.tree.setDragDropMode(QTreeView.InternalMove)
         
         self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.tree.customContextMenuRequested.connect(self.show_context_menu)
         self.tree.clicked.connect(self.open_file)
+        
+     
+
+        self.tree.customContextMenuRequested.connect(
+            lambda pos: show_context_menu(self, pos)
+        )
 
         splitter.addWidget(self.tree)
 
@@ -226,9 +146,6 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("No project open")
         
 
-       
-        
-    # --------------------
 
     def write(self, message):
         self.log.appendPlainText(message)
@@ -392,162 +309,7 @@ class MainWindow(QMainWindow):
 
         self.load_project(folder)
         
-    def show_context_menu(self, position):
-
-        index = self.tree.indexAt(position)
-
-        if not index.isValid():
-            return
-
-        path = Path(self.model.filePath(index))
-
-        menu = QMenu(self)
-
-        new_post = menu.addAction("New Post")
-        
-        new_folder = menu.addAction("New Folder")
-
-        menu.addSeparator()
-        
-        rename = menu.addAction("Rename")
-
-        delete = menu.addAction("Delete")
-
-
-        action = menu.exec(
-            self.tree.viewport().mapToGlobal(position)
-        )
-
-        if action == new_post:
-            self.create_post(path)
-            
-        elif action == new_folder:
-            self.new_folder(path)
-        
-        elif action == rename:
-            self.rename_item(path)
-
-        elif action == delete:
-            self.delete_item(path)
-                
-    def create_post(self, path):
-
-        if path.is_file():
-            folder = path.parent
-        else:
-            folder = path
-
-        title, ok = QInputDialog.getText(
-            self,
-            "New Post",
-            "Post title",
-        )
-
-        if not ok or not title:
-            return
-
-        slug = title.lower().replace(" ", "-")
-    
-        file = folder / f"{slug}.md"
-        if file.exists():
-            QMessageBox.warning(
-                self,
-                "File exists",
-                f"{file.name} already exists."
-            )
-            return
-
-        file.write_text(
-            dedent(f"""\
-            ---
-            title: "{title}"
-            date: {datetime.date.today()}
-            tags: []
-            draft: false
-            ---
-
-            # {title}
-            """),
-            encoding="utf8",
-        )
-
-        self.refresh_tree()
-
-        self.write(f"Created {file}")
-        
-    def refresh_tree(self):
-
-        if not self.project:
-            return
-
-        self.model.setRootPath("")
-
-        index = self.model.setRootPath(
-            str(self.project)
-        )
-
-        self.tree.setRootIndex(index)
-        
-    def new_folder(self, path):
-
-        folder = path.parent if path.is_file() else path
-
-        name, ok = QInputDialog.getText(
-            self,
-            "New Folder",
-            "Folder name",
-        )
-
-        if not ok or not name:
-            return
-
-        new_folder = folder / name
-
-        if new_folder.exists():
-            QMessageBox.warning(
-                self,
-                "Folder exists",
-                f"{new_folder.name} already exists."
-            )
-            return
-
-        new_folder.mkdir()
-
-        self.refresh_tree()
-
-        self.write(f"Created folder {new_folder.name}")
-        
-    def delete_item(self, path):
-
-        answer = QMessageBox.question(
-            self,
-            "Delete",
-            f"Delete '{path.name}'?",
-            QMessageBox.Yes | QMessageBox.No,
-        )
-
-        if answer != QMessageBox.Yes:
-            return
-
-        if path.is_dir():
-            shutil.rmtree(path)
-        else:
-            path.unlink()
-            
-        # Is the currently active file gone?
-        editor = self.current_editor()
-
-        if (
-            editor is not None
-            and editor.file_path is not None
-            and editor.file_path == path
-        ):
-            self.close_tab(self.tabs.currentIndex())
-
-
-        self.refresh_tree()
-
-        self.write(f"Deleted {path.name}")
+   
         
     def run_command(self):
 
@@ -563,37 +325,7 @@ class MainWindow(QMainWindow):
 
         self.command.clear()
         
-    def rename_item(self, path):
-
-        name, ok = QInputDialog.getText(
-            self,
-            "Rename",
-            "New name:",
-            text=path.name,
-        )
-
-        if not ok or not name:
-            return
-            
-            
-        if path.is_file() and not Path(name).suffix:
-            name += path.suffix
-
-        new_path = path.parent / name
-
-        if new_path.exists():
-            QMessageBox.warning(
-                self,
-                "Already exists",
-                f"{name} already exists."
-            )
-            return
-
-        path.rename(new_path)
-
-        self.refresh_tree()
-
-        self.write(f"Renamed {path.name} → {new_path.name}")
+    
         
     def update_editor_font(self, editor):
 

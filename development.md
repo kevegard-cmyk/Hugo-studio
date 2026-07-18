@@ -138,6 +138,7 @@ GitHub
 
 Release
 --------
+- Clear settings before release!
 - Add release
 - Make public
 

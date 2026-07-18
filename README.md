@@ -35,7 +35,7 @@ Optional Integration
 
 ## Status
 
-**Current version:** v0.4.2 Alpha
+**Current version:** v0.4.3 Alpha
 
 For planned features, known issues, and the project roadmap, see **development.md**.
 
