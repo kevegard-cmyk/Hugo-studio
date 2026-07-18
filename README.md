@@ -1,143 +1,48 @@
 # Hugo Studio
 
-**Hugo Studio** is a desktop writing environment for the Hugo static site generator.
+**Hugo Studio** is a desktop application that makes Hugo easier to use for writers, bloggers, and other non-technical users.
 
-Unlike general-purpose code editors, Hugo Studio is designed for writers, bloggers, and content creators who want to focus on writing rather than Hugo syntax.
-
-The project is currently in development, only for testing.
-
----
+The project is experimental and under active development. It began as a personal learning project while I was learning Hugo and Python, and I'm sharing it in case others find it useful. Expect bugs, incomplete features, and ongoing changes.
 
 ## Why Hugo Studio?
 
-Most Hugo users write in Visual Studio Code or another programming editor. While these tools are powerful, they are primarily designed for software development.
-
-Hugo Studio aims to provide a simpler experience focused on content creation.
-
-The long-term goal is to make common Hugo tasks available through an intuitive graphical interface while keeping the flexibility of Markdown.
-
----
-
-## Current Features
-
-### Project Management
-
-* Open Hugo projects
-* Automatically restore the last opened project
-* Recent projects list
-* Project tree navigation
-
-### File Management
-
-* Create new posts
-* Create folders
-* Rename files and folders
-* Delete files and folders
-
-### Theme
-* Install PaperMod theme (config file still manual)
-
-### Markdown Editing
-
-* Syntax highlighting
-* Markdown formatting toolbar
-* Bold
-* Italic
-* Inline code
-* Headings
-* Quotes
-* Bullet lists
-* Numbered lists
-
-### Hugo Integration
-
-* Hugo Preview
-* Hugo Build
-* Integrated command console
-
-### Editor
-
-* Adjustable editor font size
-* Persistent font size between sessions
-* Unsaved changes detection
-* Save confirmation before closing
-
----
-
-## Planned Features
-
-### Hugo Authoring Tools
-
-* Figure shortcode
-* YouTube shortcode
-* Notice shortcode
-* Ref / RelRef insertion
-* Hugo shortcode library
-
-### Front Matter Editor
-
-A graphical editor for:
-
-* Title
-* Date
-* Tags
-* Categories
-* Draft status
-
-### Writing Tools
-
-* Word count
-* Better image insertion
-* Hugo-aware snippets
-
-### Future Ideas
-
-* Hugo documentation search
-* Hugo template library
-* Theme helper
-* Live preview improvements
-
----
+I like Hugo's simplicity and speed, but I wanted a dedicated desktop application that hides unnecessary complexity and makes creating Hugo websites easier.
 
 ## Target Audience
 
 Hugo Studio is intended for:
 
-* Bloggers
+* Hugo beginners
 * Writers
-* Hugo users who prefer a dedicated writing environment over a programming IDE
-
----
+* Bloggers
+* Content creators
+* Anyone who prefers a dedicated application over a programming IDE
 
 ## Technology
+
+Current platform: Windows. Linux and macOS support are planned.
+
+Core Technologies
 
 * Python
 * PySide6 (Qt)
 * Hugo
 * Markdown
 
----
+Optional Integration
+
+* Git (publishing)
 
 ## Status
 
-Current version:
+**Current version:** v0.4.2 Alpha
 
-**v0.4.2 Alpha**
-Fixes
-
----
+For planned features, known issues, and the project roadmap, see **development.md**.
 
 ## Contributing
 
-Suggestions, bug reports, and feature requests are welcome.
-
-The goal is to build a desktop application that makes writing for Hugo faster, simpler, and more enjoyable.
-
----
+Feedback, bug reports, feature requests, and suggestions are welcome.
 
 ## License
 
 MIT License
-
-
-v0.3 fixes preview, adds log panel, markdown highlighting and help.

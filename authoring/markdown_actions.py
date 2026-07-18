@@ -3,8 +3,8 @@ from PySide6.QtGui import QTextCursor
 
 class MarkdownActions:
 
-    def __init__(self, editor):
-        self.editor = editor
+    def __init__(self, get_editor):
+        self.get_editor = get_editor
 
 
 
@@ -58,10 +58,15 @@ class MarkdownActions:
         
     def wrap_selection(self, left, right=None):
 
+        editor = self.get_editor()
+        if editor is None:
+            return
+
         if right is None:
             right = left
 
-        cursor = self.editor.textCursor()
+        cursor = editor.textCursor()
+        cursor.beginEditBlock()
 
         text = cursor.selectedText()
 
@@ -74,11 +79,20 @@ class MarkdownActions:
                 QTextCursor.MoveAnchor,
                 len(right)
             )
-            self.editor.setTextCursor(cursor)    
+
+        cursor.endEditBlock()
+
+        editor.setTextCursor(cursor)
+        editor.setFocus()
+        
     
     def prefix_lines(self, prefix):
 
-        cursor = self.editor.textCursor()
+        editor = self.get_editor()
+        if editor is None:
+            return
+
+        cursor = editor.textCursor()
 
         cursor.beginEditBlock()
 
@@ -106,6 +120,9 @@ class MarkdownActions:
             cursor.insertText(prefix)
 
         cursor.endEditBlock()
+
+        editor.setTextCursor(cursor)
+        editor.setFocus()
         
     
         
@@ -113,15 +130,38 @@ class MarkdownActions:
         
     def insert_text(self, text):
 
-        cursor = self.editor.textCursor()
+        editor = self.get_editor()
+        if editor is None:
+            return
+
+        cursor = editor.textCursor()
+
+        cursor.beginEditBlock()
         cursor.insertText(text)
+        cursor.endEditBlock()
+
+        editor.setTextCursor(cursor)
+        editor.setFocus()
         
     def insert_block(self, text):
 
-        cursor = self.editor.textCursor()
+        editor = self.get_editor()
+        if editor is None:
+            return
 
+        cursor = editor.textCursor()
+
+        cursor.beginEditBlock()
         cursor.insertText("\n" + text + "\n")
+        cursor.endEditBlock()
+
+        editor.setTextCursor(cursor)
+        editor.setFocus()
         
     def selected_text(self):
 
-        return self.editor.textCursor().selectedText()
+        editor = self.get_editor()
+        if editor is None:
+            return ""
+
+        return editor.textCursor().selectedText()

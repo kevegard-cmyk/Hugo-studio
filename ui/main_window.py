@@ -1,47 +1,48 @@
-from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QMenu
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QPushButton
-from PySide6.QtCore import QProcess
-from PySide6.QtWidgets import QLabel
-from pathlib import Path
-from textwrap import dedent
 import datetime
+from pathlib import Path
 import shutil
-from authoring.markdown_actions import MarkdownActions
-from ui.authoring_toolbar import AuthoringToolbar
+from textwrap import dedent
 
+
+from PySide6.QtGui import QAction
+from PySide6.QtCore import Qt, QProcess
 
 from PySide6.QtWidgets import (
-    QMainWindow,
-    QWidget,
-    QVBoxLayout,
     QFileDialog,
     QFileSystemModel,
-    QTreeView,
-    QSplitter,
-    QPlainTextEdit,
+    QHBoxLayout,
     QInputDialog,
+    QLineEdit,
+    QMainWindow,
+    QMenu,
     QMessageBox,
+    QPlainTextEdit,
+    QPushButton,
+    QSplitter,
     QTabWidget,
+    QTextBrowser,
+    QTreeView,
+    QVBoxLayout,
+    QWidget,
 )
 
-from utils.markdown_highlighter import MarkdownHighlighter
-from ui.markdown_help import show_markdown_help
+
 from core.hugo_service import HugoService
 from core.settings import Settings
 from core.themes import THEMES
-
+from authoring.markdown_actions import MarkdownActions
+from ui.authoring_toolbar import AuthoringToolbar
+from ui.document_editor import DocumentEditor
 
 class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.modified = False
+       
         self.settings = Settings()
         self.editor_font_size = self.settings.editor_font_size
         self.project = None
-        self.current = None
+       
 
         self.hugo = HugoService(self)
 
@@ -52,43 +53,21 @@ class MainWindow(QMainWindow):
 
         self.restore_last_project()
         
-        
-
-    def build_ui(self):
-
-        # ---------- Menu ----------
+    def build_menus(self):
 
         menu = self.menuBar()
 
-        file_menu = menu.addMenu("&File")
-        view_menu = menu.addMenu("&View")
-        hugo_menu = menu.addMenu("&Hugo")
-        theme_menu = menu.addMenu("&Theme")
+        self.build_file_menu(menu)
+        self.build_view_menu(menu)
+        self.build_hugo_menu(menu)
+        self.build_theme_menu(menu)
+        self.build_help_menu(menu)
         
-        
-        # ---------- Theme Menu ----------
-        
-        install_theme_action = QAction("Install Theme...", self)
-        install_theme_action.triggered.connect(self.install_theme)
-        theme_menu.addAction(install_theme_action)
-        
-          # ---------- View Menu ----------
-        
-        font_up = QAction("Increase Font Size", self)
-        font_up.setShortcut("Ctrl++")
-        font_up.triggered.connect(self.increase_font_size)
-        view_menu.addAction(font_up)
-        font_down = QAction("Decrease Font Size", self)
-        font_down.setShortcut("Ctrl+-")
-        font_down.triggered.connect(self.decrease_font_size)
-        view_menu.addAction(font_down)
-        font_reset = QAction("Reset Font Size", self)
-        font_reset.setShortcut("Ctrl+0")
-        font_reset.triggered.connect(self.reset_font_size)
-        view_menu.addAction(font_reset)
 
-        # ---------- File Menu ----------
-        
+
+    def build_file_menu(self, menu):
+
+        file_menu = menu.addMenu("&File")
         new_project = QAction("New Project...", self)
         new_project.triggered.connect(self.new_project)
         file_menu.addAction(new_project)
@@ -98,22 +77,41 @@ class MainWindow(QMainWindow):
         file_menu.addAction(open_action)
 
         self.recent_menu = file_menu.addMenu("Recent Projects")
-        
+
         file_menu.addSeparator()
-        
+
         self.save_action = file_menu.addAction("Save")
         self.save_action.setShortcut("Ctrl+S")
         self.save_action.triggered.connect(self.save)
         self.save_action.setEnabled(False)
-        
+
         exit_action = QAction("Exit", self)
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
+
+    def build_view_menu(self, menu):
+
+        view_menu = menu.addMenu("&View")
+
+        font_up = QAction("Increase Font Size", self)
+        font_up.setShortcut("Ctrl++")
+        font_up.triggered.connect(self.increase_font_size)
+        view_menu.addAction(font_up)
+
+        font_down = QAction("Decrease Font Size", self)
+        font_down.setShortcut("Ctrl+-")
+        font_down.triggered.connect(self.decrease_font_size)
+        view_menu.addAction(font_down)
+
+        font_reset = QAction("Reset Font Size", self)
+        font_reset.setShortcut("Ctrl+0")
+        font_reset.triggered.connect(self.reset_font_size)
+        view_menu.addAction(font_reset)
         
-        
-        
-        # ---------- Hugo Menu ----------
-        
+    def build_hugo_menu(self, menu):
+
+        hugo_menu = menu.addMenu("&Hugo")
+
         preview_action = QAction("Preview", self)
         preview_action.setShortcut("F5")
         preview_action.triggered.connect(self.preview)
@@ -125,23 +123,41 @@ class MainWindow(QMainWindow):
         hugo_menu.addAction(build_action)
 
         hugo_menu.addSeparator()
-    
+        
+    def build_theme_menu(self, menu):
+
+        theme_menu = menu.addMenu("&Theme")
+
+        install_theme_action = QAction("Install Theme...", self)
+        install_theme_action.triggered.connect(self.install_theme)
+        theme_menu.addAction(install_theme_action)
+ 
+    def build_help_menu(self, menu):
+
+        help_menu = menu.addMenu("&Help")
+
         help_action = QAction("Markdown Help", self)
         help_action.setShortcut("F1")
         help_action.triggered.connect(self.md_help)
-        hugo_menu.addAction(help_action)
-        
-        
-        # --------------------
+        help_menu.addAction(help_action)
 
-     
+    def build_ui(self):
+
+ 
+        self.build_menus()
 
         splitter = QSplitter()
         self.setCentralWidget(splitter)
 
         self.model = QFileSystemModel()
+        self.model.setReadOnly(False)
 
         self.tree = QTreeView()
+        self.tree.setDragEnabled(True)
+        self.tree.setAcceptDrops(True)
+        self.tree.setDropIndicatorShown(True)
+        self.tree.setDragDropMode(QTreeView.InternalMove)
+        
         self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tree.customContextMenuRequested.connect(self.show_context_menu)
         self.tree.clicked.connect(self.open_file)
@@ -152,23 +168,25 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(right)
       
 
-        self.editor = QPlainTextEdit()
-        self.editor.setReadOnly(True)
-        self.editor.setPlaceholderText(
-    "Open a Markdown file or create a new post."
-        )
-        MarkdownHighlighter(self.editor.document())
-        self.update_editor_font()
-        self.editor.textChanged.connect(self.document_changed)
-        self.md = MarkdownActions(self.editor)
+        self.welcome = QTextBrowser()
+        self.welcome.setHtml("""
+        <h2>Welcome to Hugo Studio</h2>
+        <p>Open a Markdown file or create a new post.</p>
+        """)
+        
+        
+        
+        self.md = MarkdownActions(self.current_editor)
         self.authoring = AuthoringToolbar(self.md)
         
         self.tabs = QTabWidget()
+        self.tabs.setTabsClosable(True)
+        self.tabs.tabCloseRequested.connect(self.close_tab)
         
         
         
         self.tabs.addTab(
-            self.editor,
+            self.welcome,
             "Welcome",
         )
 
@@ -246,30 +264,41 @@ class MainWindow(QMainWindow):
         if path.is_dir():
             return
 
-        if not self.maybe_save():
-            return
+        for i in range(self.tabs.count()):
+            widget = self.tabs.widget(i)
+
+            if (
+                isinstance(widget, DocumentEditor)
+                and widget.file_path == path
+            ):
+                self.tabs.setCurrentIndex(i)
+                return
 
         self.load_file(path)
 
     def save(self):
-        
-        if not self.current:
+
+        editor = self.current_editor()
+
+        if editor is None:
             return
 
-        self.current.write_text(
-            self.editor.toPlainText(),
+        if editor.file_path is None:
+            return
+
+        editor.file_path.write_text(
+            editor.toPlainText(),
             encoding="utf8",
         )
 
-        self.modified = False
-        
-        if self.current:
-            self.tabs.setTabText(
-                0,
-                self.current.name,
-            )
+        editor.modified = False
 
-        self.write("Saved " + self.current.name)
+        self.tabs.setTabText(
+            self.tabs.currentIndex(),
+            editor.file_path.name,
+        )
+
+        self.write(f"Saved {editor.file_path.name}")
 
         self.update_status()
 
@@ -284,7 +313,46 @@ class MainWindow(QMainWindow):
         self.hugo.build(self.project)
 
     def md_help(self):
-        show_markdown_help(self)
+
+        # Is it already open?
+        for i in range(self.tabs.count()):
+
+            if self.tabs.tabText(i) == "Markdown Help":
+                self.tabs.setCurrentIndex(i)
+                return
+
+        browser = QTextBrowser()
+        browser.setOpenExternalLinks(True)
+        browser.setReadOnly(True)
+        
+        
+         
+
+        help_file = Path("docs/markdown_help.md")
+
+        if help_file.exists():
+
+            browser.setMarkdown(
+                    help_file.read_text(
+                        encoding="utf8"
+                    )
+            )
+
+        else:
+
+            browser.setMarkdown(
+                "# Help\n\n"
+                "Help file not found."
+            )
+
+        index = self.tabs.addTab(
+            browser,
+            "Markdown Help",
+        )
+        
+
+
+        self.tabs.setCurrentIndex(index)
         
     def update_recent_projects_menu(self):
 
@@ -461,9 +529,15 @@ class MainWindow(QMainWindow):
         else:
             path.unlink()
             
-        # Is the currently opened file gone?
-        if self.current and not self.current.exists():
-            self.reset_editor()
+        # Is the currently active file gone?
+        editor = self.current_editor()
+
+        if (
+            editor is not None
+            and editor.file_path is not None
+            and editor.file_path == path
+        ):
+            self.close_tab(self.tabs.currentIndex())
 
 
         self.refresh_tree()
@@ -480,29 +554,7 @@ class MainWindow(QMainWindow):
         if not command:
             return
 
-        self.write(f"> {command}")
-
-        self.command_process = QProcess(self)
-
-        self.command_process.setWorkingDirectory(str(self.project))
-
-        self.command_process.readyReadStandardOutput.connect(
-            lambda: self.write(
-                bytes(
-                    self.command_process.readAllStandardOutput()
-                ).decode(errors="ignore")
-            )
-        )
-
-        self.command_process.readyReadStandardError.connect(
-            lambda: self.write(
-                bytes(
-                    self.command_process.readAllStandardError()
-                ).decode(errors="ignore")
-            )
-        )
-
-        self.command_process.start("cmd", ["/c", command])
+        self.hugo.run_command(command)
 
         self.command.clear()
         
@@ -538,37 +590,70 @@ class MainWindow(QMainWindow):
 
         self.write(f"Renamed {path.name} → {new_path.name}")
         
-    def update_editor_font(self):
+    def update_editor_font(self, editor):
 
-        font = self.editor.font()
+        font = editor.font()
         font.setPointSize(self.editor_font_size)
+        editor.setFont(font)
 
-        self.editor.setFont(font)
-        
+
     def increase_font_size(self):
 
         self.editor_font_size += 1
         self.settings.editor_font_size = self.editor_font_size
         self.settings.save()
-        self.update_editor_font()
-        
+
+        for i in range(self.tabs.count()):
+
+            widget = self.tabs.widget(i)
+
+            if isinstance(widget, DocumentEditor):
+                self.update_editor_font(widget)
+
+
     def decrease_font_size(self):
 
         if self.editor_font_size > 6:
             self.editor_font_size -= 1
             self.settings.editor_font_size = self.editor_font_size
             self.settings.save()
-        self.update_editor_font()
-        
+
+        for i in range(self.tabs.count()):
+
+            widget = self.tabs.widget(i)
+
+            if isinstance(widget, DocumentEditor):
+                self.update_editor_font(widget)
+
+
     def reset_font_size(self):
 
         self.editor_font_size = 11
         self.settings.editor_font_size = self.editor_font_size
         self.settings.save()
-        self.update_editor_font()
-        
+
+        for i in range(self.tabs.count()):
+
+            widget = self.tabs.widget(i)
+
+            if isinstance(widget, DocumentEditor):
+                self.update_editor_font(widget)
+
+
+ 
+
+
+    def create_editor(self):
+
+        editor = DocumentEditor()
+
+        self.update_editor_font(editor)
+        editor.textChanged.connect(self.document_changed)
+
+        return editor
+            
     def closeEvent(self, event):
-        
+            
         self.hugo.stop_server()
         if self.maybe_save():
             event.accept()
@@ -577,23 +662,29 @@ class MainWindow(QMainWindow):
             
     def document_changed(self):
 
-        if self.editor.isReadOnly():
+        editor = self.current_editor()
+
+        if editor is None:
             return
 
-        if self.modified:
+        if editor.isReadOnly():
             return
 
-        self.modified = True
+        if editor.modified:
+            return
 
-        if self.current:
+        editor.modified = True
+
+        if editor.file_path:
+
             self.tabs.setTabText(
-                0,
-                self.current.name + " *",
+                self.tabs.currentIndex(),
+                editor.file_path.name + " *",
             )
 
         self.update_status()
     
-   
+    
             
             
     def new_project(self):
@@ -647,7 +738,7 @@ class MainWindow(QMainWindow):
         
     def install_theme(self):
 
-        from core.themes import THEMES
+       
 
         theme, ok = QInputDialog.getItem(
             self,
@@ -673,24 +764,31 @@ class MainWindow(QMainWindow):
 
         project = self.project.name
 
-        if self.current is None:
+        editor = self.current_editor()
+
+        if editor is None or editor.file_path is None:
             self.statusBar().showMessage(
                 f"Project: {project}"
             )
         else:
             self.statusBar().showMessage(
-                f"Project: {project} | File: {self.current.name}"
+                f"Project: {project} | File: {editor.file_path.name}"
             )
             
     def maybe_save(self):
 
-        if not self.modified:
+        editor = self.current_editor()
+
+        if editor is None:
+            return True
+
+        if not editor.modified:
             return True
 
         reply = QMessageBox.question(
             self,
             "Unsaved Changes",
-            f"Save changes to {self.current.name}?",
+            f"Save changes to {editor.file_path.name}?",
             QMessageBox.Save |
             QMessageBox.Discard |
             QMessageBox.Cancel,
@@ -708,52 +806,49 @@ class MainWindow(QMainWindow):
         
     def reset_editor(self):
 
-        self.current = None
+        while self.tabs.count() > 1:
 
-        self.editor.blockSignals(True)
+            widget = self.tabs.widget(1)
 
-        self.editor.clear()
+            self.tabs.removeTab(1)
 
-        self.editor.blockSignals(False)
-
-        self.editor.setReadOnly(True)
-
-        self.modified = False
+            widget.deleteLater()
 
         self.save_action.setEnabled(False)
 
-        self.tabs.setTabText(
-            0,
-            "Welcome",
-        )
+        self.tabs.setCurrentIndex(0)
 
         self.update_status()
         
     def load_file(self, path):
 
-        self.current = path
+        editor = self.create_editor()
 
-        self.editor.blockSignals(True)
+        editor.file_path = path
 
-        self.editor.setPlainText(
+        editor.blockSignals(True)
+
+        editor.setPlainText(
             path.read_text(
                 encoding="utf8",
                 errors="ignore",
             )
         )
 
-        self.editor.blockSignals(False)
+        editor.blockSignals(False)
 
-        self.editor.setReadOnly(False)
-    
-        self.modified = False
+        editor.setReadOnly(False)
+        editor.modified = False
 
         self.save_action.setEnabled(True)
 
-        self.tabs.setTabText(
-            0,
+        index = self.tabs.addTab(
+            editor,
             path.name,
         )
+
+        self.tabs.setCurrentIndex(index)
+        editor.setFocus()
 
         self.write("Opened " + path.name)
 
@@ -793,3 +888,47 @@ class MainWindow(QMainWindow):
         self.update_status()
 
         return True
+        
+        
+    def close_tab(self, index):
+
+        widget = self.tabs.widget(index)
+
+        if widget == self.welcome:
+            self.tabs.removeTab(index)
+            widget.deleteLater()
+            return
+
+        self.tabs.setCurrentIndex(index)
+
+        if not self.maybe_save():
+            return
+
+        self.tabs.removeTab(index)
+
+        widget.deleteLater()
+        if self.current_editor() is None:
+            self.save_action.setEnabled(False)
+
+        self.update_status()
+        
+
+        
+    def current_editor(self):
+
+        widget = self.tabs.currentWidget()
+
+        if isinstance(widget, DocumentEditor):
+            return widget
+
+        return None
+
+
+    def current_file(self):
+
+        editor = self.current_editor()
+
+        if editor:
+            return editor.file_path
+
+        return None
