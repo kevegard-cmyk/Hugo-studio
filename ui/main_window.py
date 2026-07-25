@@ -43,8 +43,9 @@ from ui.mainwindow.project import (
     restore_last_project,
     update_recent_projects_menu,
 )
-
-
+from core.installation_check import check_installation
+from ui.dialogs.installation_dialog import InstallationDialog
+from ui.dialogs.about_dialog import AboutDialog
 
 from ui.mainwindow.editor import (
     create_editor_actions,
@@ -61,11 +62,22 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-       
+
         self.settings = Settings()
+
+        if self.settings.first_run:
+
+            result = check_installation()
+
+            self.settings.hugo_available = result["hugo"]
+            self.settings.git_available = result["git"]
+            self.settings.first_run = False
+            self.settings.save()
+
+            InstallationDialog(result, self).exec()
+
         self.editor_font_size = self.settings.editor_font_size
         self.project = None
-       
 
         self.hugo = HugoService(self)
 
@@ -104,16 +116,21 @@ class MainWindow(QMainWindow):
         self.tree = QTreeView()
         self.tree.setHeaderHidden(True)
         self.tree.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        empty_page = QWidget()
+        empty_layout = QVBoxLayout(empty_page)
+
         self.empty_project_label = QLabel(
-            "No project open.\n\nCreate or open a Hugo project."
+            "Project Explorer\n\nNo project open."
         )
-        
+        self.empty_project_label.setAlignment(Qt.AlignHCenter)
+
+        empty_layout.addWidget(self.empty_project_label)
+        empty_layout.setContentsMargins(10, 20, 10, 10)
+        empty_layout.addStretch()
 
         self.project_stack = QStackedWidget()
-        self.project_stack.addWidget(self.empty_project_label)   # index 0
-        self.project_stack.addWidget(self.tree)                  # index 1
-        
-        self.empty_project_label.setAlignment(Qt.AlignCenter)
+        self.project_stack.addWidget(empty_page)   # index 0
+        self.project_stack.addWidget(self.tree)    # index 1
         # self.tree.setDragEnabled(True)
         # self.tree.setAcceptDrops(True)
         # self.tree.setDropIndicatorShown(True)
@@ -139,7 +156,7 @@ class MainWindow(QMainWindow):
         self.welcome = QTextBrowser()
         self.welcome.setHtml("""
         <h2>Welcome to Hugo Studio</h2>
-        <p>A desktop editor for Hugo websites.</p>
+        <p>A desktop IDE for Hugo websites.</p>
         <hr>
         <p><b>Start by:</b></p>
         <ul>
@@ -259,7 +276,7 @@ class MainWindow(QMainWindow):
         # Is it already open?
         for i in range(self.tabs.count()):
 
-            if self.tabs.tabText(i) == "Markdown Help":
+            if self.tabs.tabText(i) == "HugoStudio Help":
                 self.tabs.setCurrentIndex(i)
                 return
 
@@ -267,7 +284,7 @@ class MainWindow(QMainWindow):
         browser.setOpenExternalLinks(True)
         browser.setReadOnly(True)
   
-        help_file = Path("docs/markdown_help.md")
+        help_file = Path("docs/hugostudio_help.md")
         if help_file.exists():
 
             browser.setMarkdown(
@@ -285,7 +302,7 @@ class MainWindow(QMainWindow):
 
         index = self.tabs.addTab(
             browser,
-            "Markdown Help",
+            "HugoStudio Help",
         )
         
         self.tabs.setCurrentIndex(index)
@@ -515,3 +532,6 @@ class MainWindow(QMainWindow):
         self.save_as_action = QAction("Save As…", self)
         self.save_as_action.setEnabled(False)
         self.save_as_action.triggered.connect(lambda: save_as(self))
+        
+    def show_about(self):
+        AboutDialog(self).exec()

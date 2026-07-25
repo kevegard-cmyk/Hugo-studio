@@ -9,6 +9,10 @@ DEFAULT_SETTINGS = {
     "last_project": "",
     "recent_projects": [],
     "editor_font_size": 11,
+
+    "first_run": True,
+    "hugo_available": False,
+    "git_available": False,
 }
 
 
@@ -83,3 +87,30 @@ class Settings:
     @editor_font_size.setter
     def editor_font_size(self, value):
         self.settings["editor_font_size"] = value
+        
+        
+    @property
+    def first_run(self):
+        return self.settings["first_run"]
+
+    @first_run.setter
+    def first_run(self, value):
+        self.settings["first_run"] = value
+
+
+    @property
+    def hugo_available(self):
+        return self.settings["hugo_available"]
+
+    @hugo_available.setter
+    def hugo_available(self, value):
+        self.settings["hugo_available"] = value
+
+
+    @property
+    def git_available(self):
+        return self.settings["git_available"]
+
+    @git_available.setter
+    def git_available(self, value):
+        self.settings["git_available"] = value

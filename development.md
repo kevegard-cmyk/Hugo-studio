@@ -82,7 +82,6 @@ Create Site
 Configure Site
 - Theme settings
 
-
 Create Content
 - Create Post Wizard
 
