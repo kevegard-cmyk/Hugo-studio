@@ -1,50 +1,113 @@
 from PySide6.QtWidgets import (
     QWidget,
     QHBoxLayout,
-    QPushButton,
+    QToolButton,
+    QFrame,
 )
 
+from PySide6.QtCore import Qt
+from PySide6.QtCore import QSize
+
+from ui.icon import icon
+
+MARKDOWN_BUTTONS = (
+    "bold",
+    "italic",
+    "code",
+    "strike",
+    "h1",
+    "h2",
+    "h3",
+    "bullet_list",
+    "numbered_list",
+    "quote",
+)
 
 class AuthoringToolbar(QWidget):
 
-    def __init__(self, actions):
+    def __init__(self, actions, save_action, save_as_action):
         super().__init__()
+        
+        self.buttons = {}
 
         self.layout = QHBoxLayout(self)
 
         self.layout.setContentsMargins(4, 4, 4, 4)
         self.layout.setSpacing(3)
-
-        self.add_button("B", actions.bold)
-        self.add_button("I", actions.italic)
-        self.add_button("</>", actions.inline_code)
-        self.add_button("S", actions.strike)
-
+        
+        self.add_action_button("save", save_action)
+        self.add_action_button("save_as", save_as_action)
         self.add_separator()
+        
+        buttons = [
+            ("bold", actions.bold, "Bold", "bold"),
+            ("italic", actions.italic, "Italic", "italic"),
+            ("code", actions.inline_code, "Inline code", "code"),
+            ("strike", actions.strike, "Strikethrough", "strikethrough"),
+            None,
+            ("h1", actions.h1, "Heading 1", "heading-1"),
+            ("h2", actions.h2, "Heading 2", "heading-2"),
+            ("h3", actions.h3, "Heading 3", "heading-3"),
+            None,
+            ("bullet_list", actions.bullet_list, "Bullet list", "list"),
+            ("numbered_list", actions.numbered_list, "Numbered list", "list-ordered"),
+            ("quote", actions.quote, "Quote", "quote"),
+        ]
 
-        self.add_button("H1", actions.h1)
-        self.add_button("H2", actions.h2)
-        self.add_button("H3", actions.h3)
+        for item in buttons:
+            if item is None:
+                self.add_separator()
+                continue
 
-        self.add_separator()
+            key, slot, tooltip, icon_name = item
 
-        self.add_button("•", actions.bullet_list)
-        self.add_button("1.", actions.numbered_list)
-        self.add_button("❝", actions.quote)
+            self.add_button(
+                key,
+                slot,
+                tooltip=tooltip,
+                icon_name=icon_name,
+            )
 
         self.layout.addStretch()
 
-    def add_button(self, text, slot):
-
-        button = QPushButton(text)
+        
+    def create_tool_button(self):
+        button = QToolButton()
         button.setFixedSize(32, 28)
+        button.setIconSize(QSize(22, 22))
+        button.setToolButtonStyle(Qt.ToolButtonIconOnly)
+        button.setAutoRaise(True)
+        button.setCursor(Qt.PointingHandCursor)
+        button.setFocusPolicy(Qt.NoFocus)
+        return button
+        
+    def add_action_button(self, key, action):
+        button = self.create_tool_button()
+        button.setDefaultAction(action)
 
         self.layout.addWidget(button)
-
+        self.buttons[key] = button
+        return button
+       
+    def add_button(self, key, slot, tooltip, icon_name):
+        button = self.create_tool_button()
+        button.setIcon(icon(icon_name))
+        button.setToolTip(tooltip)
         button.clicked.connect(slot)
 
+        self.layout.addWidget(button)
+        self.buttons[key] = button
         return button
 
     def add_separator(self):
-
-        self.layout.addSpacing(8)
+        line = QFrame()
+        line.setFrameShape(QFrame.VLine)
+        line.setFrameShadow(QFrame.Sunken)
+        self.layout.addWidget(line)
+        
+    def set_button_text(self, key, text):
+        self.buttons[key].setText(text)
+        
+    def set_markdown_enabled(self, enabled: bool):
+        for key in MARKDOWN_BUTTONS:
+            self.buttons[key].setEnabled(enabled)

@@ -2,10 +2,16 @@
 
 from PySide6.QtGui import QAction
 
+
+
 from ui.mainwindow.project import (
     new_project,
     open_project,
+    open_project,
+    close_project,
 )
+
+from ui.mainwindow.theme import install_theme
 
 
 def build_menus(window):
@@ -31,18 +37,21 @@ def build_file_menu(window, menu):
 
     open_project_action = QAction("Open Project...", window)
     open_project_action.triggered.connect(
-        lambda: open_project(window)
+        lambda checked=False: open_project(window)
     )
     file_menu.addAction(open_project_action)
 
     window.recent_menu = file_menu.addMenu("Recent Projects")
 
-    file_menu.addSeparator()
+    
+    
+    close_project_action = QAction("Close Project", window)
+    close_project_action.triggered.connect(
+        lambda: close_project(window)
+    )
+    file_menu.addAction(close_project_action)
 
-    window.save_action = file_menu.addAction("Save")
-    window.save_action.setShortcut("Ctrl+S")
-    window.save_action.triggered.connect(window.save)
-    window.save_action.setEnabled(False)
+    file_menu.addSeparator()
 
     exit_action = QAction("Exit", window)
     exit_action.triggered.connect(window.close)
@@ -91,7 +100,11 @@ def build_theme_menu(window, menu):
     theme_menu = menu.addMenu("&Theme")
 
     install_theme_action = QAction("Install Theme...", window)
-    install_theme_action.triggered.connect(window.install_theme)
+    
+    install_theme_action.triggered.connect(
+        lambda: install_theme(window)
+    )
+    
     theme_menu.addAction(install_theme_action)
 
 

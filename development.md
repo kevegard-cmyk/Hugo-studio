@@ -33,13 +33,6 @@ Architecture
 
 BUGS
 ======
-
-
-- Rename during open
-- Remove during open
-- Open only valid Hugo projects
-- Text editor opens images (only open supported files)
-- Delete message about missing project (or move after opening)
 - QFileSystemWatcher warning after deleting directories
 - PyInstaller doesn't include help file
 
@@ -53,24 +46,28 @@ IDE
 ---
 
 Project
-- Clear button for Recent Projects
+
+
 
 Editor
-- Extend editor toolbar
-- Create Save/Save as button
+- Extend editor toolbar with editor features (copy, paste,ctrl+z ctrl+y,)
+- Extend editor toolbar with markdown features
+- Extend editor toolbar with hugo features
+- Implement toolbar enable/disable based on the active editor
+- adding keyboard shortcuts to tooltips,
 
 
 Explorer
-- Add folder icons
+- Add folder icons (?)
+- Hide some directories or group them?
 - Copy / Paste / Duplicate
 - Copy path + filename
-- Create more file types
+- Insert more file types
 - Extend Ctrl / Shift selection
-- Remove file type column
+- Add file/folder info button
+- Drag & Drop in Explorer (removed)
 
 Interface
-- Window title information
-- Remove status bar information
 - Restructure menus
 
 
@@ -78,10 +75,9 @@ Hugo
 -----
 
 Create Site
-- Improve New Project Wizard
-- Theme installation
-- Install theme from URL
-- Fix theme .git installation issue
+
+
+
 
 Configure Site
 - Theme settings
@@ -139,8 +135,7 @@ GitHub
 Release
 --------
 - Clear settings before release!
-- Add release
-- Make public
+
 
 
 
@@ -159,11 +154,25 @@ Other
 
 DONE
 ======
-
-
+- ZIP and clone theme installation
+- Added menu to create more file types
+- Improved New Project Wizard
+- Added Close project menu
+- Validate Hugo project before opening
+- Added "Insert image function" to tree
+- Added image viewer
+- Toolbar reorganized, added icons
+- Toolbar pointing hand cursor
+- Only Folder and file names are shown in exlorer
+- Files in explorer open only on double click
+- Added Save/Save as button to editor
+- Added "No project open text"
+- Added project history clean button
+- Added project name to windows title
+- Editor only opens supported files
+- Cannot rename or delete open file
 - Multi-tab editor
 - Ctrl+Z works with toolbar buttons
-- Drag & Drop in Explorer
 - Save automatically refreshes Preview
 - Fixed save restoring deleted file
 - Added Markdown Help

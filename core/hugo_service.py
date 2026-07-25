@@ -1,15 +1,14 @@
 import subprocess
 import webbrowser
 import platform
-
+from pathlib import Path
 
 from PySide6.QtCore import QProcess
 
 
-from core.themes import THEMES
-from pathlib import Path
 
 
+from core.project_options import NewProjectOptions
 
 DEBUG_HUGO_OUTPUT = False
 
@@ -85,10 +84,22 @@ class HugoService:
 
         self.main_window.write("Build complete.")
         
-    def new_project(self, parent_folder, name):
+    def new_project(self, options: NewProjectOptions):
+
+        if options.config_format not in {"toml", "yaml", "json"}:
+            self.main_window.write("Invalid project configuration format.")
+            return False
+
         result = subprocess.run(
-            ["hugo", "new", "site", name],
-            cwd=parent_folder,
+            [
+                "hugo",
+                "new",
+                "site",
+                options.name,
+                "--format",
+                options.config_format,
+            ],
+            cwd=options.parent_folder,
             capture_output=True,
             text=True,
         )
@@ -96,50 +107,91 @@ class HugoService:
         if result.returncode != 0:
             self.main_window.write(result.stderr)
             return False
-            
-        project_path = Path(parent_folder) / name
-      
-        
-        git = subprocess.run(
-            ["git", "init"],
-            cwd=project_path,
-            capture_output=True,
-            text=True,
-        )
 
-        if git.returncode != 0:
-            self.main_window.write(git.stderr)
+        project_path = options.parent_folder / options.name
+
+        if options.initialize_git:
+            git = subprocess.run(
+                ["git", "init"],
+                cwd=project_path,
+                capture_output=True,
+                text=True,
+            )
+
+            if git.returncode != 0:
+                self.main_window.write(git.stderr)
+                return False
+
+        self.main_window.write(f"Created project: {options.name}")
+        return True
+
+    def new_content(self, project, content_path):
+        if project is None:
+            self.main_window.write("No project is open.")
             return False
 
-        self.main_window.write(f"Created project: {name}")
+        content_path = Path(content_path)
+        if content_path.is_absolute() or ".." in content_path.parts:
+            self.main_window.write("Invalid Hugo content path.")
+            return False
+
+        try:
+            result = subprocess.run(
+                ["hugo", "new", "content", content_path.as_posix()],
+                cwd=project,
+                capture_output=True,
+                text=True,
+            )
+        except FileNotFoundError:
+            self.main_window.write(
+                "Hugo was not found. Install Hugo or add it to PATH."
+            )
+            return False
+
+        if result.returncode != 0:
+            self.main_window.write(
+                result.stderr.strip()
+                or result.stdout.strip()
+                or "Hugo could not create the content file."
+            )
+            return False
+
+        self.main_window.write(f"Created content: {content_path}")
         return True
         
-    def install_theme(self, project, theme):
+    def install_theme(self, project, repo_url, theme_name):
 
         if project is None:
-
             self.main_window.write("No project is open.")
             return
 
-        self.main_window.write(f"Installing theme: {theme}")
-    
-
-
-        repo = THEMES[theme]["repo"]
-        self.main_window.write(f"Repository: {repo}")
-
+        self.main_window.write(f"Installing theme: {theme_name}")
+        self.main_window.write(f"Repository: {repo_url}")
         
+        
+        destination = project / "themes" / theme_name
+
+        if destination.exists():
+            self.main_window.write(
+                f"Theme '{theme_name}' is already installed."
+            )
+            return
+
         result = subprocess.run(
             [
                 "git",
                 "clone",
-                repo,
-                f"themes/{theme}",
+                repo_url,
+                f"themes/{theme_name}",
             ],
             cwd=project,
             capture_output=True,
             text=True,
         )
+
+        if result.returncode != 0:
+            self.main_window.write(result.stderr.strip())
+            return
 
         self.main_window.write("Theme installation finished.")
         
