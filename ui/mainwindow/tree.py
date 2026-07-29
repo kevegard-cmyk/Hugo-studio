@@ -1,6 +1,7 @@
 import shutil
-
 from pathlib import Path
+
+
 
 
     
@@ -170,12 +171,11 @@ def create_post(window, path):
         QMessageBox.critical(
             window,
             "Post Creation Failed",
-            "Hugo could not create the new post. Check the log for details.",
+            "Hugo could not create the new post.",
         )
         return
 
     refresh_tree(window)
-
     load_file(window, file)
 
     window.write(f"Created page {file.name}")

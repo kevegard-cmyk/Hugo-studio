@@ -2,6 +2,7 @@ import datetime
 from pathlib import Path
 import shutil
 from textwrap import dedent
+import sys
 
 from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt, QProcess
@@ -11,7 +12,7 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QFileSystemModel,
     QHBoxLayout,
-    QInputDialog,
+    # QInputDialog,
     QLineEdit,
     QMainWindow,
     QMenu,
@@ -33,7 +34,7 @@ from PySide6.QtWidgets import (
 from core.version import RELEASE
 from core.hugo_service import HugoService
 from core.settings import Settings
-from core.themes import THEMES
+# from core.themes import THEMES
 from authoring.markdown_actions import MarkdownActions
 from ui.authoring_toolbar import AuthoringToolbar
 from ui.document_editor import DocumentEditor
@@ -284,7 +285,12 @@ class MainWindow(QMainWindow):
         browser.setOpenExternalLinks(True)
         browser.setReadOnly(True)
   
-        help_file = Path("docs/hugostudio_help.md")
+        if getattr(sys, "frozen", False):
+            base_dir = Path(sys.executable).parent
+        else:
+            base_dir = Path(__file__).resolve().parent.parent
+
+        help_file = base_dir / "docs" / "hugostudio_help.md"
         if help_file.exists():
 
             browser.setMarkdown(
@@ -391,25 +397,25 @@ class MainWindow(QMainWindow):
         self.hugo.stop_server()
         event.accept()
                   
-    def install_theme(self):
+    # def install_theme(self):
 
        
-        theme, ok = QInputDialog.getItem(
-            self,
-            "Install Theme",
-            "Choose a theme:",
-            sorted(THEMES.keys()),
-            0,
-            False,
-        )
+        # theme, ok = QInputDialog.getItem(
+            # self,
+            # "Install Theme",
+            # "Choose a theme:",
+            # sorted(THEMES.keys()),
+            # 0,
+            # False,
+        # )
 
-        if not ok:
-            return
+        # if not ok:
+            # return
 
-        self.hugo.install_theme(
-            self.project,
-            theme,
-        )
+        # self.hugo.install_theme(
+            # self.project,
+            # theme,
+        # )
         
 
             

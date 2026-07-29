@@ -25,7 +25,7 @@ CURRENT MILESTONE
 
 
 Architecture
-- Split MainWindow
+
 - Refactor project loading
 - Split OS-specific code
 
@@ -33,8 +33,6 @@ Architecture
 
 BUGS
 ======
-- QFileSystemWatcher warning after deleting directories
-- PyInstaller doesn't include help file
 
 
 
@@ -44,9 +42,6 @@ FEATURES
 
 IDE
 ---
-
-Project
-
 
 
 Editor
@@ -67,17 +62,10 @@ Explorer
 - Add file/folder info button
 - Drag & Drop in Explorer (removed)
 
-Interface
-- Restructure menus
 
 
 Hugo
 -----
-
-Create Site
-
-
-
 
 Configure Site
 - Theme settings
@@ -104,6 +92,7 @@ TOOLS & HELP & MAINTENANCE
 Tools
 -----
 - YAML/TOML converter
+- Hugo and git install check
 
 Help
 ----
@@ -128,19 +117,15 @@ Website
 - Rewrite website content
 
 GitHub
-- Clean GitHub files
+
 
 
 Release
 --------
-- Clear settings before release!
-
-
 
 
 FUTURE
 ======
-
 
 Hugo
 - Site menu

@@ -1,7 +1,5 @@
 from PySide6.QtWidgets import QDialog
 
-from ui.dialogs.theme_install_dialog import ThemeInstallDialog
-
 
 
 

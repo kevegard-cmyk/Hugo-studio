@@ -81,10 +81,10 @@ class ThemeInstallDialog(QDialog):
         buttons = QHBoxLayout()
         buttons.addStretch()
 
-        close_btn = QPushButton("Close")
-        close_btn.clicked.connect(self.accept)
+        self.close_button = QPushButton("Close")
+        self.close_button.clicked.connect(self.close)
 
-        buttons.addWidget(close_btn)
+        buttons.addWidget(self.close_button)
 
         layout.addLayout(buttons)
         
@@ -145,7 +145,7 @@ class ThemeInstallDialog(QDialog):
             self.clone_preview.clear()
             return
 
-        theme_name = Path(url).stem
+        theme_name = self.theme_name_from_repo(url)
 
         command = f"git clone {url} themes/{theme_name}"
 
@@ -162,20 +162,52 @@ class ThemeInstallDialog(QDialog):
         if not repo_url:
             return
 
-        theme_name = Path(repo_url).stem
-
+        theme_name = self.theme_name_from_repo(repo_url)
+        self.set_installing(True)
+        
+        
         window.hugo.install_theme(
             window.project,
             repo_url,
             theme_name,
+            self,
         )
         
     def theme_name_from_repo(self, repo_url):
         name = Path(repo_url).stem
 
-        for prefix in ("hugo-theme-", "hugo-"):
-            if name.startswith(prefix):
+        prefixes = (
+            "hugo-theme-",
+            "hugo-",
+            "theme-",
+        )
+
+        for prefix in prefixes:
+            if name.lower().startswith(prefix):
                 name = name[len(prefix):]
                 break
 
         return name
+        
+    def set_installing(self, installing):
+
+        self.clone_button.setEnabled(not installing)
+        self.repo_edit.setEnabled(not installing)
+        self.close_button.setEnabled(not installing)
+
+        if installing:
+            self.clone_button.setText("Installing...")
+        else:
+            self.clone_button.setText("Execute Git Clone")
+            
+            
+    def closeEvent(self, event):
+
+        print("closeEvent")
+
+        if not self.clone_button.isEnabled():
+            print("ignored")
+            event.ignore()
+            return
+
+        super().closeEvent(event)
