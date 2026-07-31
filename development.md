@@ -1,6 +1,6 @@
 Hugo Studio – The easiest way to start with Hugo.
 
-Create, edit, preview and publish Hugo websites without learning the command line.
+Create, edit, preview and publish Hugo websites without  command line.
 
 
 VISION
@@ -8,13 +8,12 @@ VISION
 
 
 Hugo Studio is a desktop application that makes Hugo accessible to
-beginners – writers, bloggers and other non-technical users.
+beginners.
+
 
 Principles
 ----------
-- Hide unnecessary complexity.
 - Teach Hugo instead of exposing Hugo.
-- Make common tasks one click.
 - Keep generated projects 100% standard Hugo.
 - Advanced users can still use the command line.
 
@@ -25,69 +24,66 @@ CURRENT MILESTONE
 
 
 Architecture
-
 - Refactor project loading
 - Split OS-specific code
 
 
 
-BUGS
+BUGS, ISSUES
 ======
 
 
-
-FEATURES
+FEATURES to add
 ======
-
 
 IDE
----
+-----
+
+
+UI Polish
+- Consistent dialog messages
+- Consistent icons
+- Consistent terminology
+- Status bar improvements
+- Progress indicators
+- Confirmation dialogs
 
 
 Editor
 - Extend editor toolbar with editor features (copy, paste,ctrl+z ctrl+y,)
 - Extend editor toolbar with markdown features
-- Extend editor toolbar with hugo features
+- Extend editor toolbar with hugo content features
 - Implement toolbar enable/disable based on the active editor
-- adding keyboard shortcuts to tooltips,
+- adding keyboard shortcuts and tooltips,
 
 
 Explorer
-- Add folder icons (?)
-- Hide some directories or group them?
+- Add folder icons
 - Copy / Paste / Duplicate
 - Copy path + filename
 - Insert more file types
 - Extend Ctrl / Shift selection
 - Add file/folder info button
-- Drag & Drop in Explorer (removed)
+- info for folders and files
 
-
+Status bar
+- Show server status
 
 Hugo
 -----
 
-Configure Site
-- Theme settings
-
-Create Content
-- Create Post Wizard
+- Add stop preview (server) button 
 
 Build & Publish
 - Preview settings
 - Build settings
+- Add a two panel site inspector (content/public folders)
 - Basic Git integration
 
-Configure Site
-- Config editor
-- Menu editor
-- Homepage editor
 
 
-
-TOOLS & HELP & MAINTENANCE
+TOOLS & HELP & MAINTENANCE to add
 ======
-
 
 Tools
 -----
@@ -127,17 +123,38 @@ Release
 FUTURE
 ======
 
+
+
+
 Hugo
+--------
 - Site menu
-- Theme manager
 - Markdown highlighter
+- YAML/TOML/JSON highlighters
+
+
+Configure Site
+--------
+- Config editor
+- Menu editor
+- Homepage editor
+- Theme manager, settings
+
+Create Content
+--------
+- Create Post Wizard
+
+
 
 Other
 - Additional improvements as the project evolves
-
+- Drag & Drop in Explorer (removed)
+- Hide some directories or group them?
 
 DONE
 ======
+- Fixed theme install freeze
+- Added 'site inspector'
 - ZIP and clone theme installation
 - Added menu to create more file types
 - Improved New Project Wizard

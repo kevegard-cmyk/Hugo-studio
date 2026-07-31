@@ -246,10 +246,14 @@ class HugoService:
             self.main_window.write(
                 f"Theme '{theme_name}' is already installed."
             )
+
+            dialog.set_installing(False)
             return
 
         if self.git_process.state() != QProcess.NotRunning:
             self.main_window.write("Another Git operation is already running.")
+
+            dialog.set_installing(False)
             return
 
         self.git_process.setWorkingDirectory(str(project))
@@ -396,15 +400,15 @@ class HugoService:
         ).decode(errors="ignore")
 
         if text:
-            self.build_error = True
+           
             self.main_window.write(text.rstrip())
             
     def build_finished(self, exit_code, exit_status):
 
-        if self.build_error:
-            self.main_window.write("Build failed.")
-        else:
+        if exit_code == 0:
             self.main_window.write("Build complete.")
+        else:
+            self.main_window.write("Build failed.")
             
             
     def git_stdout(self):

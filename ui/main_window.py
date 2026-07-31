@@ -30,7 +30,7 @@ from PySide6.QtWidgets import (
     QStackedWidget,
     QAbstractItemView,
 )
-
+from ui.site_inspector import SiteInspector
 from core.version import RELEASE
 from core.hugo_service import HugoService
 from core.settings import Settings
@@ -541,3 +541,10 @@ class MainWindow(QMainWindow):
         
     def show_about(self):
         AboutDialog(self).exec()
+        
+    def show_site_inspector(self):
+        if not self.project:
+            return
+
+        self.inspector = SiteInspector(self.project, self)
+        self.inspector.show()

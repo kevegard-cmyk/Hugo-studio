@@ -298,7 +298,15 @@ def rename_item(window, path):
         )
         return
 
-    path.rename(new_path)
+    try:
+        path.rename(new_path)
+    except OSError as error:
+        QMessageBox.critical(
+            window,
+            "Rename Failed",
+            str(error),
+        )
+        return
 
     refresh_tree(window)
 

@@ -27,7 +27,7 @@ def build_menus(window):
 
 def build_file_menu(window, menu):
 
-    file_menu = menu.addMenu("&File")
+    file_menu = menu.addMenu("&Project")
 
     new_project_action = QAction("New Project...", window)
     new_project_action.triggered.connect(
@@ -93,6 +93,11 @@ def build_hugo_menu(window, menu):
     hugo_menu.addAction(build_action)
 
     hugo_menu.addSeparator()
+   
+
+    inspector_action = QAction("Site Inspector...", window)
+    inspector_action.triggered.connect(window.show_site_inspector)
+    hugo_menu.addAction(inspector_action)
 
 
 def build_theme_menu(window, menu):
