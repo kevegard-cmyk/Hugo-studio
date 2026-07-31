@@ -1,1 +1,0 @@
-Every filesystem operation (rename, mkdir, unlink, rmtree, copy2, etc.) should be wrapped in try/except OSError and report the error to the user.
