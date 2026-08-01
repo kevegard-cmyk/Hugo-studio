@@ -1,6 +1,6 @@
 # MyHugoDesk
 
-**MyHugoDesk** is a desktop application that makes Hugo easier to start.
+**MyHugoDesk** is a desktop application that makes Hugo easier to start. (Formally Hugo Studio)
 
 The project is experimental and under active development. It began as a personal learning project while I was learning Hugo and Python, and I'm sharing it in case others find it useful. Expect bugs, incomplete features, and ongoing changes.
 
