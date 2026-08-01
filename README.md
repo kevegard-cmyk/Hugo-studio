@@ -1,6 +1,6 @@
-# Hugo Studio
+# MyHugoDesk
 
-**Hugo Studio** is a desktop application that makes Hugo easier to start.
+**MyHugoDesk** is a desktop application that makes Hugo easier to start.
 
 The project is experimental and under active development. It began as a personal learning project while I was learning Hugo and Python, and I'm sharing it in case others find it useful. Expect bugs, incomplete features, and ongoing changes.
 
@@ -12,13 +12,13 @@ The project is experimental and under active development. It began as a personal
 
 
 
-## Why Hugo Studio?
+## Why MyHugoDesk?
 
 I like Hugo's simplicity and speed, but I wanted a dedicated desktop application that hides unnecessary complexity and makes creating Hugo websites easier.
 
 ## Target Audience
 
-Hugo Studio is intended for:
+MyHugoDesk is intended for:
 
 * Hugo beginners
 
@@ -40,7 +40,7 @@ Optional Integration
 
 ## Status
 
-**Current version:** v0.4.42 Alpha
+**Current version:** v0.4.43 Alpha
 
 For planned features, known issues, and the project roadmap, see **development.md**.
 

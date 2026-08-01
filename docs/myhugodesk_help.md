@@ -1,6 +1,6 @@
-# Creating Your First Hugo Website with HugoStudio
+# Creating Your First Hugo Website with MyHugoDesk
 
-This guide explains how to create your first local Hugo website using HugoStudio.
+This guide explains how to create your first local Hugo website using MyHugoDesk.
 
 No Git knowledge is required.
 
@@ -18,13 +18,13 @@ Git is optional. It is only needed for advanced features such as installing them
 
 # Step 1 – Create a New Project
 
-1. Start **HugoStudio**.
+1. Start **MyHugoDesk**.
 2. Select **File → New Project**.
 3. Choose an empty folder.
 4. Enter your website name.
 5. Click **Create**.
 
-HugoStudio creates a standard Hugo project.
+MyHugoDesk creates a standard Hugo project.
 
 At this point, your project contains the basic Hugo folder structure but **does not contain a theme**.
 
@@ -41,7 +41,7 @@ These templates are provided either by:
 
 A newly created Hugo project contains neither, so there is nothing to display yet.
 
-To install a theme in HugoStudio:
+To install a theme in MyHugoDesk:
 
 1. Select **Hugo → Install Theme**.
 2. Install a theme from a ZIP file or a Git repository.
@@ -93,7 +93,7 @@ Enter a page name, for example:
 about
 ```
 
-HugoStudio creates:
+MyHugoDesk creates:
 
 ```
 content/about.md

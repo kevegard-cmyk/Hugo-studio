@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 
-SETTINGS_FILE = Path.home() / ".hugostudio.json"
+SETTINGS_FILE = Path.home() / ".myhugodesk" / "settings.json"
 
 
 DEFAULT_SETTINGS = {
@@ -23,7 +23,7 @@ class Settings:
         self.load()
 
     def load(self):
-
+        SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
         if not SETTINGS_FILE.exists():
             return
 
@@ -40,10 +40,14 @@ class Settings:
             # Ignore invalid or unreadable settings.
             # Defaults will be used instead.
             pass
+            
+            
+
 
     def save(self):
 
         try:
+            SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
             SETTINGS_FILE.write_text(
                 json.dumps(
                     self.settings,

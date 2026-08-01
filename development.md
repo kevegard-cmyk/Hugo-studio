@@ -1,4 +1,4 @@
-Hugo Studio – The easiest way to start with Hugo.
+MyHugoDesk – The easiest way to start with Hugo.
 
 Create, edit, preview and publish Hugo websites without  command line.
 
@@ -7,7 +7,7 @@ VISION
 ======
 
 
-Hugo Studio is a desktop application that makes Hugo accessible to
+MyHugoDesk is a desktop application that makes Hugo accessible to
 beginners.
 
 
@@ -95,7 +95,7 @@ Help
 - Markdown Help formatting
 - Hugo manual
 - Git manual
-- Hugo Studio manual
+- MyHugoDesk manual
 
 Maintenance
 -----------

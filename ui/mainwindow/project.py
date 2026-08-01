@@ -35,7 +35,7 @@ def new_project(window):
         QMessageBox.critical(
             window,
             "Project Creation Failed",
-            "Hugo Studio could not create the project.\n\n"
+            "MyHugoDesk could not create the project.\n\n"
             "Check the log for details.",
         )
         return

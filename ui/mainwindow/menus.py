@@ -117,12 +117,12 @@ def build_help_menu(window, menu):
 
     help_menu = menu.addMenu("&Help")
 
-    help_action = QAction("HugoStudio", window)
+    help_action = QAction("MyHugoDesk", window)
     help_action.setShortcut("F1")
     help_action.triggered.connect(window.md_help)
     help_menu.addAction(help_action)
     
-    about_action = QAction("About HugoStudio", window)
+    about_action = QAction("About MyHugoDesk", window)
     about_action.triggered.connect(window.show_about)
 
     help_menu.addSeparator()

@@ -156,7 +156,7 @@ class MainWindow(QMainWindow):
 
         self.welcome = QTextBrowser()
         self.welcome.setHtml("""
-        <h2>Welcome to Hugo Studio</h2>
+        <h2>Welcome to MyHugoDesk</h2>
         <p>A desktop IDE for Hugo websites.</p>
         <hr>
         <p><b>Start by:</b></p>
@@ -277,7 +277,7 @@ class MainWindow(QMainWindow):
         # Is it already open?
         for i in range(self.tabs.count()):
 
-            if self.tabs.tabText(i) == "HugoStudio Help":
+            if self.tabs.tabText(i) == "MyHugoDesk Help":
                 self.tabs.setCurrentIndex(i)
                 return
 
@@ -290,7 +290,7 @@ class MainWindow(QMainWindow):
         else:
             base_dir = Path(__file__).resolve().parent.parent
 
-        help_file = base_dir / "docs" / "hugostudio_help.md"
+        help_file = base_dir / "docs" / "myhugodesk_help.md"
         if help_file.exists():
 
             browser.setMarkdown(
@@ -308,7 +308,7 @@ class MainWindow(QMainWindow):
 
         index = self.tabs.addTab(
             browser,
-            "HugoStudio Help",
+            "MyHugoDesk Help",
         )
         
         self.tabs.setCurrentIndex(index)

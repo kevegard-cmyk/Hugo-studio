@@ -30,7 +30,7 @@ class AboutDialog(QDialog):
 
         description = QLabel(
             "A desktop IDE for Hugo websites.\n\n"
-            "HugoStudio simplifies creating, editing, previewing "
+            "MyHugoDesk simplifies creating, editing, previewing "
             "and building Hugo websites while helping users "
             "understand how Hugo works."
         )

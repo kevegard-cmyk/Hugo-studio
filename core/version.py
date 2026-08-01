@@ -1,4 +1,4 @@
-APP_NAME = "Hugo Studio"
-VERSION = "0.4.42"
+APP_NAME = "MyHugoDesk"
+VERSION = "0.4.43"
 RELEASE = "Alpha"
-ORGANIZATION = "Hugo Studio"
+ORGANIZATION = "MyHugoDesk"

@@ -14,14 +14,14 @@ class InstallationDialog(QDialog):
     def __init__(self, result, parent=None):
         super().__init__(parent)
 
-        self.setWindowTitle("Welcome to Hugo Studio")
+        self.setWindowTitle("Welcome to MyHugoDesk")
         self.setMinimumWidth(500)
 
         layout = QVBoxLayout(self)
 
         layout.addWidget(QLabel(
             "Hugo is required to create, preview, and build Hugo websites.\n"
-            "Git is recommended for advanced features, such as theme installation and site deployment using Git. Hugo Studio can be used without Git, but these features will not be available."
+            "Git is recommended for advanced features, such as theme installation and site deployment using Git. MyHugoDesk can be used without Git, but these features will not be available."
         ))
 
         hugo = "✓ Installed" if result["hugo"] else "✗ Not installed"
