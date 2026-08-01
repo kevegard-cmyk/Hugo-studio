@@ -55,6 +55,7 @@ Editor
 - Extend editor toolbar with hugo content features
 - Implement toolbar enable/disable based on the active editor
 - adding keyboard shortcuts and tooltips,
+- search text
 
 
 Explorer
