@@ -118,3 +118,15 @@ class Settings:
     @git_available.setter
     def git_available(self, value):
         self.settings["git_available"] = value
+        
+    def get_group(self, name):
+        return self.settings.setdefault(name, {})
+
+    def set_group(self, name, values):
+        self.settings[name] = values
+
+    def get_value(self, group, key, default=None):
+        return self.settings.setdefault(group, {}).get(key, default)
+
+    def set_value(self, group, key, value):
+        self.settings.setdefault(group, {})[key] = value

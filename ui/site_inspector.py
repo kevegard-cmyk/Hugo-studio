@@ -1,15 +1,34 @@
 from pathlib import Path
 
 
+from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
-    QMainWindow, 
+    QMainWindow,
     QWidget,
     QLabel,
     QVBoxLayout,
     QSplitter,
     QTreeView,
     QFileSystemModel,
+    QMenu,
 )
+
+
+# from PySide6.QtGui import QDesktopServices
+# from PySide6.QtCore import QUrl
+
+
+# from PySide6.QtWidgets import (
+    # QMainWindow, 
+    # QMenu,
+    # QWidget,
+    # QLabel,
+    # QVBoxLayout,
+    # QSplitter,
+    # QTreeView,
+    # QFileSystemModel,
+# )
 
 
 class SiteInspector(QMainWindow):
@@ -86,7 +105,37 @@ class SiteInspector(QMainWindow):
 
         splitter.addWidget(right_widget)
         splitter.setSizes([600, 600])
+        
+        self.output_tree.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.output_tree.customContextMenuRequested.connect(
+            self.show_output_menu
+        )
 
+
+    def show_output_menu(self, position):
+
+        index = self.output_tree.indexAt(position)
+
+        if not index.isValid():
+            return
+
+        path = Path(self.output_model.filePath(index))
+
+        menu = QMenu(self)
+
+        open_action = None
+
+        if path.is_file() and path.suffix.lower() == ".html":
+            open_action = menu.addAction("Open in Browser without css")
+
+        action = menu.exec(
+            self.output_tree.viewport().mapToGlobal(position)
+        )
+
+        if action == open_action:
+            QDesktopServices.openUrl(
+                QUrl.fromLocalFile(str(path))
+            )
         # label = QLabel(
             # f"Site Inspector\n\nProject:\n{self.project_path}"
         # )

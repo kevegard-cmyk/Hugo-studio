@@ -76,6 +76,10 @@ def build_view_menu(window, menu):
     font_reset.setShortcut("Ctrl+0")
     font_reset.triggered.connect(window.reset_font_size)
     view_menu.addAction(font_reset)
+    
+    view_menu.addSeparator()
+
+    view_menu.addAction(window.terminal_dock.toggleViewAction())
 
 
 def build_hugo_menu(window, menu):
@@ -86,7 +90,15 @@ def build_hugo_menu(window, menu):
     preview_action.setShortcut("F5")
     preview_action.triggered.connect(window.preview)
     hugo_menu.addAction(preview_action)
+    ##################################
+    preview_settings_action = QAction("Preview Settings...", window)
+    preview_settings_action.triggered.connect(
+        window.preview_settings
+    )
+    hugo_menu.addAction(preview_settings_action)
 
+    hugo_menu.addSeparator()
+    ##################################
     build_action = QAction("Build", window)
     build_action.setShortcut("F6")
     build_action.triggered.connect(window.build)
@@ -127,3 +139,5 @@ def build_help_menu(window, menu):
 
     help_menu.addSeparator()
     help_menu.addAction(about_action)
+    
+    

@@ -1,5 +1,4 @@
 import subprocess
-import webbrowser
 import platform
 from pathlib import Path
 
@@ -28,6 +27,7 @@ class HugoService:
         self.server_running = False
         self.build_error = False
         self.theme_dialog = None
+        self.open_browser = True
      
         self.server_url = "http://localhost:1313"
         
@@ -78,10 +78,59 @@ class HugoService:
         self.git_process.finished.connect(
             self.git_finished
         )
+        
+        
+    def preview_command(self, options):
+
+        command = [
+            "hugo",
+            "server",
+        ]
+
+        command.extend([
+            "--port",
+            options["port"],
+        ])
+
+        if options["build_drafts"]:
+            command.append("--buildDrafts")
+
+        if options["disable_fast_render"]:
+            command.append("--disableFastRender")
+
+        if options["open_browser"]:
+            command.append("--openBrowser")
+
+        if options["build_future"]:
+            command.append("--buildFuture")
+
+        if options["build_expired"]:
+            command.append("--buildExpired")
+
+        if options["base_url"]:
+            command.extend([
+                "--baseURL",
+                options["base_url"],
+            ])
+
+        if options["navigate_to_changed"]:
+            command.append("--navigateToChanged")
+
+        if options["verbose"]:
+            command.append("--verbose")
+
+        if options["print_path_warnings"]:
+            command.append("--printPathWarnings")
+
+        return command
 
 
 
-    def preview(self, project):
+    def preview(
+        self,
+        project,
+        options,
+    ):
 
         if project is None:
             return
@@ -98,25 +147,33 @@ class HugoService:
             
             self.pending_project = project
             
+            self.server_url = (
+                f"http://localhost:{options['port']}"
+            )
             
+            self.open_browser = options["open_browser"]
+            command = self.preview_command(options)
+            
+            self.main_window.write(
+                "> " + " ".join(command)
+            )
+
             self.server_process.start(
-                "hugo",
-                [
-                    "server",
-                    "--disableFastRender",
-                ],
+                command[0],
+                command[1:],
             )
 
             self.main_window.write("Starting Hugo server...")
-
+           
         
 
-        else:
+        #else:
 
-            if self.server_project == project:
+           # if self.server_project == project:
 
-                webbrowser.open(self.server_url)
-                self.main_window.write("Opened browser.")
+                #if self.open_browser:
+                  #  webbrowser.open(self.server_url)
+                #self.main_window.write("Opened browser.")
 
     def build(self, project):
 
@@ -287,6 +344,8 @@ class HugoService:
         self.main_window.write("Command finished.")
         
     def process_output(self):
+        
+     
 
         text = bytes(
             self.server_process.readAllStandardOutput()
@@ -296,6 +355,8 @@ class HugoService:
             text = bytes(
                 self.server_process.readAllStandardError()
             ).decode(errors="ignore")
+        
+       
 
         if "ERROR" in text:
 
@@ -313,23 +374,44 @@ class HugoService:
         if DEBUG_HUGO_OUTPUT:
             self.main_window.write(text.strip())
         
-        if "Web Server is available at" in text:
+        # if "Web Server is available at" in text:
+            # print("FOUND SERVER READY")
+            # print(text)
+            
+        # if text:
+            # print(repr(text))
+            # self.main_window.write(text.strip())
 
-            if not self.server_running:
+        if (
+            not self.server_running
+            and "Web Server is available at" in text
+        ):
 
-                self.server_project = self.pending_project
-                self.pending_project = None
-                self.server_running = True
+            self.server_project = self.pending_project
+            self.pending_project = None
+            self.server_running = True
 
-                self.main_window.write("Hugo server is ready.")
-                webbrowser.open(self.server_url)
+            self.main_window.update_preview_status(
+                True,
+                self.server_url
+            )
+
+            self.main_window.write("Hugo server is ready.")
+            
+            
+            #webbrowser.open(self.server_url)
+            ##############################
+           
+            # webbrowser.open(self.server_url)
+            
+
                 
     def server_stopped(self):
 
         self.server_running = False
         self.server_project = None
         self.pending_project = None
-
+        self.main_window.update_preview_status(False)
         self.main_window.write("Hugo server stopped.")
         
     def stop_server(self):
@@ -355,7 +437,7 @@ class HugoService:
             )
             return
 
-        self.main_window.write(f"> {command}")
+        #self.main_window.write(f"> {command}")
 
         # self.command_process = QProcess(self.main_window)
 

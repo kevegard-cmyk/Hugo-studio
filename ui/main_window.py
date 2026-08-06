@@ -10,6 +10,7 @@ from ui.image_viewer import ImageViewer
 
 from PySide6.QtWidgets import (
     QFileDialog,
+    QDockWidget,
     QFileSystemModel,
     QHBoxLayout,
     # QInputDialog,
@@ -30,6 +31,11 @@ from PySide6.QtWidgets import (
     QStackedWidget,
     QAbstractItemView,
 )
+
+
+from ui.mainwindow.preview import preview_settings
+from ui.mainwindow.preview import preview
+from ui.dialogs.preview_dialog import PreviewDialog
 from ui.site_inspector import SiteInspector
 from core.version import RELEASE
 from core.hugo_service import HugoService
@@ -89,13 +95,29 @@ class MainWindow(QMainWindow):
         )
 
         self.build_ui()
+        
+        
+        
+        
+        
 
         restore_last_project(self)
         
     
     def build_ui(self):
         
-        
+        # Terminal window
+        self.terminal = QPlainTextEdit()
+        self.terminal.setReadOnly(True)
+
+        self.terminal_dock = QDockWidget("Terminal", self)
+        self.terminal_dock.setWidget(self.terminal)
+
+        self.terminal_dock.setFeatures(
+            QDockWidget.DockWidgetClosable
+            | QDockWidget.DockWidgetMovable
+            | QDockWidget.DockWidgetFloatable
+        )
  
         self.save_action, self.save_as_action = create_editor_actions(self)
         build_menus(self)
@@ -225,11 +247,26 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.authoring, 0)
         main_layout.addWidget(splitter, 1)
         
+     
+        
+        
         update_recent_projects_menu(self)
         
         self.update_status()
         
         self.update_project_view()
+        
+        
+
+        self.addDockWidget(
+            Qt.BottomDockWidgetArea,
+            self.terminal_dock
+        )
+
+        self.terminal_dock.hide()
+        
+        self.terminal_write("=== MyHugoDesk Terminal ===")
+        self.terminal_write("Terminal initialized.")
 
     def write(self, message):
         self.log.appendPlainText(message)
@@ -267,7 +304,10 @@ class MainWindow(QMainWindow):
         load_file(self, path)
 
     def preview(self):
-        self.hugo.preview(self.project)
+        preview(self)
+        
+    def preview_settings(self):
+        preview_settings(self)
 
     def build(self):
         self.hugo.build(self.project)
@@ -548,3 +588,20 @@ class MainWindow(QMainWindow):
 
         self.inspector = SiteInspector(self.project, self)
         self.inspector.show()
+        
+    def terminal_write(self, text):
+        self.terminal.appendPlainText(text)
+
+        sb = self.terminal.verticalScrollBar()
+        sb.setValue(sb.maximum())
+        
+    def update_preview_status(self, running, url=""):
+        print("update_preview_status", running, url)
+
+        if running:
+            self.statusBar().showMessage(f"🟢 Preview: {url}")
+        else:
+            self.statusBar().showMessage("⚪ Preview: Stopped")
+            
+            
+    

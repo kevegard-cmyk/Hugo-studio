@@ -12,7 +12,10 @@ from ui.dialogs.new_project_dialog import NewProjectDialog
 
             
 def new_project(window):
-    dialog = NewProjectDialog(window)
+    dialog = NewProjectDialog(
+        parent=window,
+        settings=window.settings,
+    )
 
     if dialog.exec() != QDialog.DialogCode.Accepted:
         return

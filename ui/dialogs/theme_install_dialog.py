@@ -7,16 +7,25 @@ from PySide6.QtWidgets import (
     QPushButton,
     QHBoxLayout,
     QLineEdit,
+    QCheckBox,
+    QPlainTextEdit,
 )
 
+from PySide6.QtGui import QFont
 from PySide6.QtCore import Qt
 from pathlib import Path
 
 
 
 class ThemeInstallDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, settings=None):
         super().__init__(parent)
+        self.settings = settings
+
+        if self.settings:
+            self.theme_settings = self.settings.get_group("theme")
+        else:
+            self.theme_settings = {}
         
         
 
@@ -77,16 +86,26 @@ class ThemeInstallDialog(QDialog):
         
 
         layout.addWidget(tabs)
-
+        
+        
+        # self.remember_check = QCheckBox("Remember these settings")
+        # layout.addWidget(self.remember_check)
+        
         buttons = QHBoxLayout()
         buttons.addStretch()
+        
+    
 
         self.close_button = QPushButton("Close")
         self.close_button.clicked.connect(self.close)
+        
+        
 
         buttons.addWidget(self.close_button)
 
         layout.addLayout(buttons)
+        
+        
         
     def create_advanced_tab(self):
 
@@ -122,13 +141,17 @@ class ThemeInstallDialog(QDialog):
         layout.addWidget(self.repo_edit)
 
         # Git Clone preview
-        layout.addWidget(QLabel("<b>Git Clone</b>"))
-
-        self.clone_preview = QLineEdit()
+        layout.addWidget(QLabel("<b>Command preview</b>"))
+        
+        self.clone_preview = QPlainTextEdit()
+        font = QFont("Consolas")
+        font.setStyleHint(QFont.Monospace)
+        self.clone_preview.setFont(font)
         self.clone_preview.setReadOnly(True)
+        self.clone_preview.setMaximumHeight(60)
 
         layout.addWidget(self.clone_preview)
-        self.clone_button = QPushButton("Execute Git Clone")
+        self.clone_button = QPushButton("Run")
         layout.addWidget(self.clone_button)
         self.clone_button.clicked.connect(self.execute_git_clone)
         self.repo_edit.textChanged.connect(self.update_clone_preview)
@@ -149,7 +172,7 @@ class ThemeInstallDialog(QDialog):
 
         command = f"git clone {url} themes/{theme_name}"
 
-        self.clone_preview.setText(command)
+        self.clone_preview.setPlainText(command)
         
     def execute_git_clone(self):
 
@@ -203,10 +226,9 @@ class ThemeInstallDialog(QDialog):
             
     def closeEvent(self, event):
 
-        print("closeEvent")
+        
 
         if not self.clone_button.isEnabled():
-            print("ignored")
             event.ignore()
             return
 

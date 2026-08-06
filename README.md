@@ -14,7 +14,7 @@ The project is experimental and under active development. It began as a personal
 
 ## Why MyHugoDesk?
 
-I like Hugo's simplicity and speed, but I wanted a dedicated desktop application that hides unnecessary complexity and makes creating Hugo websites easier.
+I like Hugo's simplicity and speed, but I wanted a dedicated desktop application that  makes creating Hugo websites easier.
 
 ## Target Audience
 
@@ -40,7 +40,7 @@ Optional Integration
 
 ## Status
 
-**Current version:** v0.4.43 Alpha
+**Current version:** v0.4.6 Alpha
 
 For planned features, known issues, and the project roadmap, see **development.md**.
 

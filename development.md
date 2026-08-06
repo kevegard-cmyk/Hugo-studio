@@ -31,7 +31,14 @@ Architecture
 
 BUGS, ISSUES
 ======
-
+- Rename cannot fix case sensitivity
+- Theme install dialog "git clone" without opened project - causes freezing 
+- Site inspector right click open html without css
+- What if two instances of the IDE are running at the same time?
+- If there is no public folder, Siteinspector shows system root
+- Terminal is visible but not functional
+- Satus bar server state only visible after change, then disappears
+- If clear recent projects when projects is open, it delete current project status
 
 FEATURES to add
 ======
@@ -41,12 +48,8 @@ IDE
 
 
 UI Polish
-- Consistent dialog messages
-- Consistent icons
-- Consistent terminology
-- Status bar improvements
-- Progress indicators
-- Confirmation dialogs
+
+- Progress indicators to dialogs
 
 
 Editor
@@ -68,7 +71,7 @@ Explorer
 - info for folders and files
 
 Status bar
-- Show server status
+
 
 Hugo
 -----
@@ -76,9 +79,9 @@ Hugo
 - Add stop preview (server) button 
 
 Build & Publish
-- Preview settings
 - Build settings
-- Add a two panel site inspector (content/public folders)
+- Build output summary
+- Improve two panel site inspector (content/public folders)
 - Basic Git integration
 
 
@@ -154,6 +157,8 @@ Other
 
 DONE
 ======
+- Added preview settings dialog with stop server function and save settings
+- Improved New project dialog, save settings
 - Fixed theme install freeze
 - Added 'site inspector'
 - ZIP and clone theme installation
